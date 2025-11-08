@@ -205,9 +205,41 @@
       <!-- Security Info Sidebar -->
       <div class="lg:col-span-1 space-y-6">
         <div class="card animate-slide-up" style="animation-delay: 0.1s">
+          <div v-if="!encryptionResult" class="text-center py-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Available Algorithms</h4>
+            <p class="text-sm text-gray-600 mb-4">System will randomly select 2 algorithms:</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-800">AES-256-GCM</span>
+              </div>
+              <div class="flex items-center justify-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-800">AES-128-GCM</span>
+              </div>
+              <div class="flex items-center justify-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-800">ChaCha20-Poly1305</span>
+              </div>
+              <div class="flex items-center justify-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-800">AES-256-CBC</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-4">+ RSA-4096 for key encapsulation</p>
+          </div>
           <SecurityIndicator
+            v-else
             securityLevel="excellent"
-            :algorithms="encryptionResult?.algorithms || ['AES-256-GCM', 'ChaCha20-Poly1305']"
+            :algorithms="encryptionResult.algorithms"
             :showFeatures="true"
             keyStrength="RSA-4096 Key Pair"
             keyDescription="Cryptographically secure 4096-bit RSA keys provide quantum-resistant protection"
@@ -314,25 +346,36 @@ const startEncryption = async () => {
   error.value = null
 
   try {
-    // Simulate encryption steps (this will be replaced by actual API calls)
-    for (let i = 0; i < encryptionSteps.value.length; i++) {
-      encryptionSteps.value[i].status = 'loading'
-      await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 400))
-      encryptionSteps.value[i].status = 'completed'
-      encryptionSteps.value[i].time = Math.round(200 + Math.random() * 300)
+    // Animate encryption steps
+    const animateStep = async (index) => {
+      if (index < encryptionSteps.value.length) {
+        encryptionSteps.value[index].status = 'loading'
+        await new Promise(resolve => setTimeout(resolve, 200))
+        encryptionSteps.value[index].status = 'completed'
+        encryptionSteps.value[index].time = Math.round(150 + Math.random() * 250)
+      }
+    }
+
+    // Start animating steps
+    for (let i = 0; i < 3; i++) {
+      await animateStep(i)
     }
 
     // Make API call to encrypt the file
-    // TODO: Replace with actual API call when backend is ready
-    // const response = await encryptFile(selectedFile.value)
+    const response = await encryptFile(selectedFile.value)
 
-    // For now, simulate the response
+    // Continue animating remaining steps
+    for (let i = 3; i < encryptionSteps.value.length; i++) {
+      await animateStep(i)
+    }
+
+    // Store the response
     encryptionResult.value = {
-      algorithms: ['AES-256-GCM', 'ChaCha20-Poly1305'],
-      encryptedFile: 'encrypted_data_base64_here',
-      keyFile: 'key_data_base64_here',
-      timestamp: new Date().toISOString(),
-      originalFilename: selectedFile.value.name,
+      algorithms: response.algorithms,
+      encryptedFile: response.encrypted_file,
+      keyFile: response.key_file,
+      timestamp: response.timestamp,
+      originalFilename: response.original_filename,
     }
 
   } catch (err) {
@@ -347,21 +390,23 @@ const startEncryption = async () => {
 const downloadEncryptedFile = () => {
   if (!encryptionResult.value) return
 
-  // TODO: Replace with actual file download when backend is ready
-  // const blob = base64ToBlob(encryptionResult.value.encryptedFile, 'application/pdf')
-  // downloadFile(blob, `encrypted_${encryptionResult.value.originalFilename}`)
-
-  alert('Download Encrypted File (Backend integration pending)')
+  try {
+    const blob = base64ToBlob(encryptionResult.value.encryptedFile, 'application/json')
+    downloadFile(blob, `encrypted_${encryptionResult.value.originalFilename}.encrypted`)
+  } catch (err) {
+    error.value = 'Failed to download encrypted file: ' + err.message
+  }
 }
 
 const downloadKeyFile = () => {
   if (!encryptionResult.value) return
 
-  // TODO: Replace with actual file download when backend is ready
-  // const blob = base64ToBlob(encryptionResult.value.keyFile, 'application/json')
-  // downloadFile(blob, `key_${encryptionResult.value.originalFilename.replace('.pdf', '.key')}`)
-
-  alert('Download Key File (Backend integration pending)')
+  try {
+    const blob = base64ToBlob(encryptionResult.value.keyFile, 'application/json')
+    downloadFile(blob, `key_${encryptionResult.value.originalFilename.replace('.pdf', '')}.json`)
+  } catch (err) {
+    error.value = 'Failed to download key file: ' + err.message
+  }
 }
 
 const resetEncryption = () => {

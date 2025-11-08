@@ -184,9 +184,15 @@ const validateFile = (selectedFile) => {
   }
 
   // Check file type
-  if (props.accept && !selectedFile.name.toLowerCase().endsWith(props.accept.replace('.', ''))) {
-    error.value = `Please select a ${props.accept} file`
-    return false
+  if (props.accept) {
+    const acceptedExtensions = props.accept.split(',').map(ext => ext.trim().toLowerCase())
+    const fileName = selectedFile.name.toLowerCase()
+    const isValidExtension = acceptedExtensions.some(ext => fileName.endsWith(ext.replace('.', '')))
+
+    if (!isValidExtension) {
+      error.value = `Please select a valid file (${props.accept})`
+      return false
+    }
   }
 
   // Check file size

@@ -22,9 +22,9 @@
 
           <FileUpload
             ref="encryptedFileUploadRef"
-            accept=".pdf"
+            accept=".encrypted"
             label="Drag & drop your encrypted PDF here"
-            acceptDescription="Encrypted PDF files only"
+            acceptDescription="Encrypted files (.encrypted)"
             :maxSize="20 * 1024 * 1024"
             @file-selected="handleEncryptedFileSelected"
             @file-cleared="handleEncryptedFileCleared"
@@ -42,9 +42,9 @@
 
           <FileUpload
             ref="keyFileUploadRef"
-            accept=".key,.json"
+            accept=".json,.key"
             label="Drag & drop your key file here"
-            acceptDescription="Key files (.key or .json)"
+            acceptDescription="JSON key files (.json)"
             :maxSize="1 * 1024 * 1024"
             @file-selected="handleKeyFileSelected"
             @file-cleared="handleKeyFileCleared"
@@ -389,23 +389,35 @@ const startDecryption = async () => {
   error.value = null
 
   try {
-    // Simulate decryption steps (this will be replaced by actual API calls)
-    for (let i = 0; i < decryptionSteps.value.length; i++) {
-      decryptionSteps.value[i].status = 'loading'
-      await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 400))
-      decryptionSteps.value[i].status = 'completed'
-      decryptionSteps.value[i].time = Math.round(200 + Math.random() * 300)
+    // Animate decryption steps
+    const animateStep = async (index) => {
+      if (index < decryptionSteps.value.length) {
+        decryptionSteps.value[index].status = 'loading'
+        await new Promise(resolve => setTimeout(resolve, 200))
+        decryptionSteps.value[index].status = 'completed'
+        decryptionSteps.value[index].time = Math.round(150 + Math.random() * 250)
+      }
+    }
+
+    // Start animating first few steps
+    for (let i = 0; i < 3; i++) {
+      await animateStep(i)
     }
 
     // Make API call to decrypt the file
-    // TODO: Replace with actual API call when backend is ready
-    // const response = await decryptFile(encryptedFile.value, keyFile.value)
+    const response = await decryptFile(encryptedFile.value, keyFile.value)
 
-    // For now, simulate the response
+    // Continue animating remaining steps
+    for (let i = 3; i < decryptionSteps.value.length; i++) {
+      await animateStep(i)
+    }
+
+    // Store the response
     decryptionResult.value = {
-      filename: fileMetadata.value?.originalFilename || 'document.pdf',
-      decryptedFile: 'decrypted_data_base64_here',
-      verified: true,
+      filename: response.filename,
+      decryptedFile: response.decrypted_file,
+      verified: response.verified,
+      metadata: response.metadata
     }
 
   } catch (err) {
@@ -420,11 +432,12 @@ const startDecryption = async () => {
 const downloadDecryptedFile = () => {
   if (!decryptionResult.value) return
 
-  // TODO: Replace with actual file download when backend is ready
-  // const blob = base64ToBlob(decryptionResult.value.decryptedFile, 'application/pdf')
-  // downloadFile(blob, decryptionResult.value.filename)
-
-  alert('Download Decrypted File (Backend integration pending)')
+  try {
+    const blob = base64ToBlob(decryptionResult.value.decryptedFile, 'application/pdf')
+    downloadFile(blob, decryptionResult.value.filename)
+  } catch (err) {
+    error.value = 'Failed to download decrypted file: ' + err.message
+  }
 }
 
 const resetDecryption = () => {

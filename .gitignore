@@ -6,3 +6,12 @@ __pycache__/
 dist/
 build/
 *.log
+
+# Test files
+test_document.pdf
+*.encrypted
+*.key
+
+# Python virtual environment
+venv/
+backend/venv/

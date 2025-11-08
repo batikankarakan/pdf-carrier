@@ -240,6 +240,18 @@ For production use, consider established solutions like:
 
 Built with ❤️ for Cryptography Course Project
 
-**Project Status**: 🚧 Frontend Complete | Backend Pending
+**Project Status**: ✅ **COMPLETE - Ready to Use!**
 
 **Last Updated**: October 2025
+
+---
+
+## 🚀 Quick Start
+
+See [QUICKSTART.md](QUICKSTART.md) for detailed instructions.
+
+**TL;DR:**
+
+1. Start Backend: `cd backend && source venv/bin/activate && python main.py`
+2. Start Frontend: `cd frontend && npm run dev`
+3. Visit: http://localhost:5173
