@@ -327,7 +327,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
-import { decryptFile, downloadFile, base64ToBlob } from '../services/api'
+import { decryptFile, getFileMetadata, downloadFile, base64ToBlob } from '../services/api'
 
 const encryptedFileUploadRef = ref(null)
 const keyFileUploadRef = ref(null)
@@ -353,16 +353,25 @@ const decryptionProgress = computed(() => {
   return Math.round((completed / decryptionSteps.value.length) * 100)
 })
 
-const handleEncryptedFileSelected = (file) => {
+const handleEncryptedFileSelected = async (file) => {
   encryptedFile.value = file
   error.value = null
+  fileMetadata.value = null
 
-  // Simulate reading metadata (this will be replaced by actual API call)
-  fileMetadata.value = {
-    originalFilename: 'document.pdf',
-    algorithms: ['AES-256-GCM', 'ChaCha20-Poly1305'],
-    timestamp: new Date().toISOString(),
-    version: '1.0'
+  // Fetch actual metadata from the encrypted file
+  try {
+    const response = await getFileMetadata(file)
+    if (response.success) {
+      fileMetadata.value = {
+        originalFilename: response.metadata.original_filename,
+        algorithms: response.metadata.algorithms,
+        timestamp: response.metadata.timestamp,
+        version: response.metadata.version
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load metadata:', err)
+    error.value = 'Failed to read file metadata: ' + err.message
   }
 }
 

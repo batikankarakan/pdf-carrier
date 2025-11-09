@@ -14,7 +14,7 @@ import random
 import base64
 from datetime import datetime
 from typing import Dict, List, Tuple
-from .algorithms import AESGCMCipher, AES128GCMCipher, AESCBCCipher, ChaCha20Cipher, RSACipher, HMACGenerator
+from .algorithms import AESGCMCipher, AES128GCMCipher, AESCBCCipher, ChaCha20Cipher, DESCipher, RSACipher, HMACGenerator
 from .key_management import (
     generate_encryption_keys,
     create_key_file,
@@ -27,7 +27,8 @@ AVAILABLE_ALGORITHMS = [
     "AES-256-GCM",
     "AES-128-GCM",
     "ChaCha20-Poly1305",
-    "AES-256-CBC"
+    "AES-256-CBC",
+    "DES"  # WARNING: Insecure - academic purposes only
 ]
 
 
@@ -49,13 +50,13 @@ def select_random_algorithms(count: int = 2) -> List[str]:
     return random.sample(AVAILABLE_ALGORITHMS, min(count, len(AVAILABLE_ALGORITHMS)))
 
 
-def encrypt_pdf(pdf_bytes: bytes, original_filename: str) -> Tuple[bytes, bytes]:
+def encrypt_pdf(pdf_bytes: bytes, original_filename: str, algorithms: List[str] = None) -> Tuple[bytes, bytes]:
     """
     Encrypt a PDF file with multi-layer encryption
 
     Process:
     1. Generate all encryption keys
-    2. Randomly select 2 encryption algorithms
+    2. Use provided algorithms or randomly select 2 encryption algorithms
     3. Apply Layer 1: First selected algorithm
     4. Apply Layer 2: Second selected algorithm
     5. Encapsulate symmetric keys with RSA
@@ -65,6 +66,7 @@ def encrypt_pdf(pdf_bytes: bytes, original_filename: str) -> Tuple[bytes, bytes]
     Args:
         pdf_bytes: PDF file content
         original_filename: Name of the original file
+        algorithms: Optional list of algorithm names to use (must be exactly 2)
 
     Returns:
         Tuple of (encrypted_file_bytes, key_file_bytes)
@@ -74,9 +76,18 @@ def encrypt_pdf(pdf_bytes: bytes, original_filename: str) -> Tuple[bytes, bytes]
     rsa_private = keys['rsa_private']
     rsa_public = keys['rsa_public']
 
-    # Step 2: Randomly select 2 algorithms
-    selected_algorithms = select_random_algorithms(2)
-    print(f"[ENCRYPT] Selected algorithms: {selected_algorithms}")
+    # Step 2: Use provided algorithms or randomly select 2
+    if algorithms:
+        if len(algorithms) != 2:
+            raise ValueError("Must provide exactly 2 algorithms")
+        if not all(algo in AVAILABLE_ALGORITHMS for algo in algorithms):
+            raise ValueError(f"Invalid algorithms. Available: {AVAILABLE_ALGORITHMS}")
+        selected_algorithms = algorithms
+        print(f"[ENCRYPT] Using user-selected algorithms: {selected_algorithms}")
+    else:
+        selected_algorithms = select_random_algorithms(2)
+        print(f"[ENCRYPT] Randomly selected algorithms: {selected_algorithms}")
+
     print(f"[ENCRYPT] Input PDF size: {len(pdf_bytes)} bytes")
 
     # Step 3 & 4: Apply encryption layers dynamically based on selected algorithms
@@ -122,6 +133,15 @@ def encrypt_pdf(pdf_bytes: bytes, original_filename: str) -> Tuple[bytes, bytes]
             key = AESCBCCipher.generate_key()
             print(f"[ENCRYPT] - Generated key: {len(key)} bytes")
             ciphertext, iv, _ = AESCBCCipher.encrypt(current_data, key)
+            print(f"[ENCRYPT] - Success! Encrypted data size: {len(ciphertext)} bytes")
+            layer_data[f"layer{layer_num}_iv"] = base64.b64encode(iv).decode('utf-8')
+            symmetric_keys[f"layer{layer_num}_key"] = key
+            current_data = ciphertext
+
+        elif algorithm == "DES":
+            key = DESCipher.generate_key()
+            print(f"[ENCRYPT] - Generated key: {len(key)} bytes (DES - INSECURE)")
+            ciphertext, iv, _ = DESCipher.encrypt(current_data, key)
             print(f"[ENCRYPT] - Success! Encrypted data size: {len(ciphertext)} bytes")
             layer_data[f"layer{layer_num}_iv"] = base64.b64encode(iv).decode('utf-8')
             symmetric_keys[f"layer{layer_num}_key"] = key

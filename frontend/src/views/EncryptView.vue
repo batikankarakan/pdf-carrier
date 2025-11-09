@@ -32,6 +32,122 @@
           />
         </div>
 
+        <!-- Algorithm Selection Card -->
+        <div v-if="selectedFile && !isEncrypting && !encryptionResult" class="card animate-fade-in">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 2: Choose Encryption Method</h3>
+
+          <!-- Selection Mode Toggle -->
+          <div class="mb-6">
+            <div class="flex space-x-4">
+              <button
+                @click="selectionMode = 'random'"
+                :class="[
+                  'flex-1 p-4 rounded-lg border-2 transition-all duration-200',
+                  selectionMode === 'random'
+                    ? 'border-primary-600 bg-primary-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                ]"
+              >
+                <div class="flex items-center justify-center space-x-2 mb-2">
+                  <svg class="h-5 w-5" :class="selectionMode === 'random' ? 'text-primary-600' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span class="font-semibold" :class="selectionMode === 'random' ? 'text-gray-900' : 'text-gray-600'">
+                    Random Selection
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600">
+                  System automatically selects 2 algorithms (recommended)
+                </p>
+              </button>
+
+              <button
+                @click="selectionMode = 'manual'"
+                :class="[
+                  'flex-1 p-4 rounded-lg border-2 transition-all duration-200',
+                  selectionMode === 'manual'
+                    ? 'border-primary-600 bg-primary-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                ]"
+              >
+                <div class="flex items-center justify-center space-x-2 mb-2">
+                  <svg class="h-5 w-5" :class="selectionMode === 'manual' ? 'text-primary-600' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span class="font-semibold" :class="selectionMode === 'manual' ? 'text-gray-900' : 'text-gray-600'">
+                    Manual Selection
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600">
+                  Choose exactly 2 algorithms yourself
+                </p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Algorithm Selection -->
+          <div v-if="selectionMode === 'manual'" class="space-y-3">
+            <p class="text-sm font-medium text-gray-700 mb-3">Select exactly 2 algorithms:</p>
+
+            <div
+              v-for="algo in availableAlgorithms"
+              :key="algo.name"
+              @click="toggleAlgorithm(algo.name)"
+              :class="[
+                'algorithm-selection-card',
+                selectedAlgorithms.includes(algo.name) ? 'algorithm-selected' : '',
+                algo.warning ? 'border-yellow-300' : ''
+              ]"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div :class="[
+                    'w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
+                    selectedAlgorithms.includes(algo.name)
+                      ? 'bg-primary-600 border-primary-600'
+                      : 'border-gray-300'
+                  ]">
+                    <svg v-if="selectedAlgorithms.includes(algo.name)" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+
+                  <div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold text-gray-900">{{ algo.name }}</span>
+                      <span v-if="algo.warning" class="text-xs text-yellow-700 font-semibold">⚠️ INSECURE</span>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-0.5">{{ algo.description }}</p>
+                  </div>
+                </div>
+
+                <span class="text-xs text-gray-500">{{ algo.key_size }}</span>
+              </div>
+            </div>
+
+            <div v-if="selectedAlgorithms.length !== 2" class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-xs text-blue-800">
+                <span class="font-semibold">{{ selectedAlgorithms.length }}/2 algorithms selected.</span>
+                {{ selectedAlgorithms.length < 2 ? 'Please select ' + (2 - selectedAlgorithms.length) + ' more.' : 'Please deselect ' + (selectedAlgorithms.length - 2) + '.' }}
+              </p>
+            </div>
+
+            <div v-if="hasSelectedDES" class="p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
+              <div class="flex items-start space-x-2">
+                <svg class="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                  <p class="text-xs font-semibold text-yellow-900">Warning: DES Selected</p>
+                  <p class="text-xs text-yellow-800 mt-1">
+                    You've selected DES, which is cryptographically broken. Use only for educational purposes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Encryption Process Card -->
         <div v-if="isEncrypting" class="card animate-fade-in">
           <h3 class="text-xl font-semibold text-gray-800 mb-6">Encryption in Progress...</h3>
@@ -190,13 +306,19 @@
         <div v-if="selectedFile && !isEncrypting && !encryptionResult">
           <button
             @click="startEncryption"
-            class="btn-primary w-full text-lg py-4 animate-pulse-slow"
+            :disabled="!canEncrypt"
+            :class="[
+              'w-full text-lg py-4 transition-all duration-200',
+              canEncrypt
+                ? 'btn-primary animate-pulse-slow'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            ]"
           >
             <span class="flex items-center justify-center space-x-2">
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span>Encrypt File Now</span>
+              <span>{{ canEncrypt ? 'Encrypt File Now' : 'Select 2 Algorithms First' }}</span>
             </span>
           </button>
         </div>
@@ -232,6 +354,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <span class="text-sm font-medium text-gray-800">AES-256-CBC</span>
+              </div>
+              <div class="flex items-center justify-center space-x-2 bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span class="text-sm font-medium text-gray-800">DES</span>
+                <span class="text-xs text-yellow-700">(⚠️ Insecure)</span>
               </div>
             </div>
             <p class="text-xs text-gray-500 mt-4">+ RSA-4096 for key encapsulation</p>
@@ -314,6 +443,48 @@ const isEncrypting = ref(false)
 const encryptionResult = ref(null)
 const error = ref(null)
 
+// Algorithm selection
+const selectionMode = ref('random') // 'random' or 'manual'
+const selectedAlgorithms = ref([])
+const availableAlgorithms = ref([
+  {
+    name: 'AES-256-GCM',
+    key_size: '256 bits',
+    description: 'Advanced Encryption Standard with Galois/Counter Mode'
+  },
+  {
+    name: 'AES-128-GCM',
+    key_size: '128 bits',
+    description: 'AES with 128-bit key (GCM mode)'
+  },
+  {
+    name: 'ChaCha20-Poly1305',
+    key_size: '256 bits',
+    description: 'ChaCha20 stream cipher with Poly1305'
+  },
+  {
+    name: 'AES-256-CBC',
+    key_size: '256 bits',
+    description: 'AES with Cipher Block Chaining mode'
+  },
+  {
+    name: 'DES',
+    key_size: '56 bits',
+    description: 'Data Encryption Standard (INSECURE - Educational only)',
+    warning: true
+  }
+])
+
+const hasSelectedDES = computed(() => {
+  return selectedAlgorithms.value.includes('DES')
+})
+
+const canEncrypt = computed(() => {
+  if (!selectedFile.value) return false
+  if (selectionMode.value === 'random') return true
+  return selectedAlgorithms.value.length === 2
+})
+
 const encryptionSteps = ref([
   { label: 'Generating secure random keys', status: 'pending', time: 0 },
   { label: 'Randomly selecting encryption algorithms', status: 'pending', time: 0 },
@@ -339,13 +510,29 @@ const handleFileCleared = () => {
   error.value = null
 }
 
+const toggleAlgorithm = (algoName) => {
+  const index = selectedAlgorithms.value.indexOf(algoName)
+  if (index > -1) {
+    // Already selected, remove it
+    selectedAlgorithms.value.splice(index, 1)
+  } else {
+    // Not selected, add it if less than 2 selected
+    if (selectedAlgorithms.value.length < 2) {
+      selectedAlgorithms.value.push(algoName)
+    }
+  }
+}
+
 const startEncryption = async () => {
-  if (!selectedFile.value) return
+  if (!canEncrypt.value) return
 
   isEncrypting.value = true
   error.value = null
 
   try {
+    // Determine which algorithms to use
+    const algorithmsToUse = selectionMode.value === 'manual' ? selectedAlgorithms.value : null
+
     // Animate encryption steps
     const animateStep = async (index) => {
       if (index < encryptionSteps.value.length) {
@@ -362,7 +549,7 @@ const startEncryption = async () => {
     }
 
     // Make API call to encrypt the file
-    const response = await encryptFile(selectedFile.value)
+    const response = await encryptFile(selectedFile.value, algorithmsToUse)
 
     // Continue animating remaining steps
     for (let i = 3; i < encryptionSteps.value.length; i++) {
@@ -414,6 +601,8 @@ const resetEncryption = () => {
   isEncrypting.value = false
   encryptionResult.value = null
   error.value = null
+  selectionMode.value = 'random'
+  selectedAlgorithms.value = []
   encryptionSteps.value.forEach(step => {
     step.status = 'pending'
     step.time = 0
@@ -450,5 +639,14 @@ const resetEncryption = () => {
 
 .animate-slide-up {
   animation: slide-up 0.5s ease-out forwards;
+}
+
+.algorithm-selection-card {
+  @apply p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer;
+  @apply transition-all duration-200 hover:border-primary-300 hover:shadow-md;
+}
+
+.algorithm-selected {
+  @apply border-primary-600 bg-primary-50 shadow-lg;
 }
 </style>

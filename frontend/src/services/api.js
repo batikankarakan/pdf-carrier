@@ -33,11 +33,17 @@ apiClient.interceptors.response.use(
 /**
  * Encrypt a PDF file
  * @param {File} pdfFile - The PDF file to encrypt
+ * @param {Array<string>} algorithms - Optional array of algorithm names to use (if not provided, random selection)
  * @returns {Promise<Object>} - Response containing encrypted file and key file URLs/data
  */
-export const encryptFile = async (pdfFile) => {
+export const encryptFile = async (pdfFile, algorithms = null) => {
   const formData = new FormData()
   formData.append('file', pdfFile)
+
+  // If algorithms are specified, add them as JSON
+  if (algorithms && algorithms.length > 0) {
+    formData.append('algorithms', JSON.stringify(algorithms))
+  }
 
   const response = await apiClient.post('/encrypt', formData, {
     headers: {
@@ -74,6 +80,24 @@ export const decryptFile = async (encryptedFile, keyFile) => {
  */
 export const getAlgorithms = async () => {
   const response = await apiClient.get('/algorithms')
+  return response.data
+}
+
+/**
+ * Get metadata from an encrypted file
+ * @param {File} encryptedFile - The encrypted file
+ * @returns {Promise<Object>} - File metadata
+ */
+export const getFileMetadata = async (encryptedFile) => {
+  const formData = new FormData()
+  formData.append('file', encryptedFile)
+
+  const response = await apiClient.post('/metadata', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
   return response.data
 }
 
@@ -124,6 +148,7 @@ export default {
   encryptFile,
   decryptFile,
   getAlgorithms,
+  getFileMetadata,
   healthCheck,
   downloadFile,
   base64ToBlob,

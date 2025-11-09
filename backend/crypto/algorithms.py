@@ -450,12 +450,111 @@ class AESCBCCipher:
         return plaintext
 
 
+class DESCipher:
+    """DES encryption/decryption (56-bit key - INSECURE, academic use only)"""
+
+    @staticmethod
+    def generate_key() -> bytes:
+        """
+        Generate an 8-byte DES key (56-bit effective)
+
+        WARNING: DES is cryptographically broken. Use for academic purposes only.
+
+        Returns:
+            bytes: 8-byte DES key
+        """
+        return secrets.token_bytes(8)  # DES uses 8-byte keys (56-bit effective)
+
+    @staticmethod
+    def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes, bytes]:
+        """
+        Encrypt plaintext using DES in CBC mode with PKCS7 padding
+
+        WARNING: DES is vulnerable to brute force attacks!
+
+        Args:
+            plaintext: Data to encrypt
+            key: 8-byte DES key
+
+        Returns:
+            Tuple of (ciphertext, iv, empty_auth_tag)
+            Note: DES-CBC doesn't have an auth tag (authentication via HMAC)
+        """
+        # Ensure key is exactly 8 bytes
+        if len(key) > 8:
+            key = key[:8]
+        elif len(key) < 8:
+            key = key.ljust(8, b'\0')
+
+        # Apply PKCS7 padding (DES block size is 64 bits / 8 bytes)
+        padder = sym_padding.PKCS7(64).padder()
+        padded_data = padder.update(plaintext) + padder.finalize()
+
+        # Generate IV (8 bytes for DES)
+        iv = os.urandom(8)
+
+        # Encrypt using DES in CBC mode
+        # Use TripleDES with single DES key (backward compatibility)
+        from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES
+        # For single DES, we need to use TripleDES with the key repeated 3 times
+        triple_key = key + key + key  # 24 bytes for TripleDES
+        cipher = Cipher(
+            TripleDES(triple_key),
+            modes.CBC(iv),
+            backend=default_backend()
+        )
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(padded_data) + encryptor.finalize()
+
+        # Return format compatible with other ciphers (empty auth tag for CBC)
+        return ciphertext, iv, b''
+
+    @staticmethod
+    def decrypt(ciphertext: bytes, key: bytes, iv: bytes) -> bytes:
+        """
+        Decrypt ciphertext using DES in CBC mode
+
+        Args:
+            ciphertext: Encrypted data
+            key: 8-byte DES key
+            iv: 8-byte initialization vector
+
+        Returns:
+            bytes: Decrypted plaintext
+        """
+        # Ensure key is exactly 8 bytes
+        if len(key) > 8:
+            key = key[:8]
+        elif len(key) < 8:
+            key = key.ljust(8, b'\0')
+
+        # Decrypt using DES in CBC mode
+        # Use TripleDES with single DES key (backward compatibility)
+        from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES
+        # For single DES, we need to use TripleDES with the key repeated 3 times
+        triple_key = key + key + key  # 24 bytes for TripleDES
+        cipher = Cipher(
+            TripleDES(triple_key),
+            modes.CBC(iv),
+            backend=default_backend()
+        )
+        decryptor = cipher.decryptor()
+        padded_data = decryptor.update(ciphertext) + decryptor.finalize()
+
+        # Remove PKCS7 padding
+        unpadder = sym_padding.PKCS7(64).unpadder()
+        plaintext = unpadder.update(padded_data) + unpadder.finalize()
+
+        return plaintext
+
+
 # Export all cipher classes
 __all__ = [
     'AESGCMCipher',
     'AES128GCMCipher',
     'AESCBCCipher',
     'ChaCha20Cipher',
+    'DESCipher',
     'RSACipher',
     'HMACGenerator'
 ]

@@ -13,7 +13,7 @@ Implements the complete PDF decryption workflow:
 import json
 import base64
 from typing import Dict, Tuple
-from .algorithms import AESGCMCipher, AES128GCMCipher, AESCBCCipher, ChaCha20Cipher, HMACGenerator
+from .algorithms import AESGCMCipher, AES128GCMCipher, AESCBCCipher, ChaCha20Cipher, DESCipher, HMACGenerator
 from .key_management import load_key_file, decapsulate_symmetric_keys
 
 
@@ -94,6 +94,8 @@ def decrypt_pdf(encrypted_file_bytes: bytes, key_file_bytes: bytes) -> Tuple[byt
                 # Determine key size based on algorithm
                 if algorithm == "AES-128-GCM":
                     key_size = 16
+                elif algorithm == "DES":
+                    key_size = 8  # DES uses 8-byte keys
                 else:  # AES-256-GCM, ChaCha20, AES-256-CBC
                     key_size = 32
 
@@ -145,6 +147,13 @@ def decrypt_pdf(encrypted_file_bytes: bytes, key_file_bytes: bytes) -> Tuple[byt
                 iv = base64.b64decode(header[f"layer{layer_num}_iv"])
                 print(f"[DECRYPT] - Key length: {len(key)} bytes, IV length: {len(iv)} bytes")
                 current_data = AESCBCCipher.decrypt(current_data, key, iv)
+                print(f"[DECRYPT] - Success! Decrypted data size: {len(current_data)} bytes")
+
+            elif algorithm == "DES":
+                key = symmetric_keys[f"layer{layer_num}_key"]
+                iv = base64.b64decode(header[f"layer{layer_num}_iv"])
+                print(f"[DECRYPT] - Key length: {len(key)} bytes, IV length: {len(iv)} bytes (DES - INSECURE)")
+                current_data = DESCipher.decrypt(current_data, key, iv)
                 print(f"[DECRYPT] - Success! Decrypted data size: {len(current_data)} bytes")
 
         pdf_bytes = current_data
