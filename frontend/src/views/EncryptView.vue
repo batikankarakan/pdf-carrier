@@ -2,10 +2,10 @@
   <div class="encrypt-view">
     <!-- Page Header -->
     <div class="text-center mb-8 animate-fade-in">
-      <h2 class="text-4xl font-bold text-gray-900 mb-3">Encrypt Your PDF</h2>
+      <h2 class="text-4xl font-bold text-gray-900 mb-3">Encrypt PDF Content</h2>
       <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Secure your PDF files with military-grade encryption. The system will automatically generate
-        secure keys and apply multiple layers of encryption algorithms.
+        Encrypt the text content of your PDF with military-grade encryption. The PDF will remain openable,
+        but the content will appear as encrypted gibberish until decrypted with the correct key.
       </p>
     </div>
 
@@ -95,8 +95,7 @@
               @click="toggleAlgorithm(algo.name)"
               :class="[
                 'algorithm-selection-card',
-                selectedAlgorithms.includes(algo.name) ? 'algorithm-selected' : '',
-                algo.warning ? 'border-yellow-300' : ''
+                selectedAlgorithms.includes(algo.name) ? 'algorithm-selected' : ''
               ]"
             >
               <div class="flex items-center justify-between">
@@ -113,10 +112,7 @@
                   </div>
 
                   <div>
-                    <div class="flex items-center space-x-2">
-                      <span class="text-sm font-semibold text-gray-900">{{ algo.name }}</span>
-                      <span v-if="algo.warning" class="text-xs text-yellow-700 font-semibold">⚠️ INSECURE</span>
-                    </div>
+                    <span class="text-sm font-semibold text-gray-900">{{ algo.name }}</span>
                     <p class="text-xs text-gray-600 mt-0.5">{{ algo.description }}</p>
                   </div>
                 </div>
@@ -130,20 +126,6 @@
                 <span class="font-semibold">{{ selectedAlgorithms.length }}/2 algorithms selected.</span>
                 {{ selectedAlgorithms.length < 2 ? 'Please select ' + (2 - selectedAlgorithms.length) + ' more.' : 'Please deselect ' + (selectedAlgorithms.length - 2) + '.' }}
               </p>
-            </div>
-
-            <div v-if="hasSelectedDES" class="p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
-              <div class="flex items-start space-x-2">
-                <svg class="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <div>
-                  <p class="text-xs font-semibold text-yellow-900">Warning: DES Selected</p>
-                  <p class="text-xs text-yellow-800 mt-1">
-                    You've selected DES, which is cryptographically broken. Use only for educational purposes.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -248,7 +230,7 @@
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
               </svg>
-              <span>Download Encrypted PDF</span>
+              <span>Download PDF (with encrypted content)</span>
             </button>
 
             <button @click="downloadKeyFile" class="btn-secondary w-full flex items-center justify-center space-x-2">
@@ -268,7 +250,7 @@
               <div>
                 <p class="text-sm font-semibold text-yellow-900">Important: Save Your Key File!</p>
                 <p class="text-xs text-yellow-800 mt-1">
-                  You MUST save the key file to decrypt your PDF later. Without this key, your file cannot be decrypted.
+                  You MUST save the key file to decrypt the PDF content later. Without this key, the content cannot be decrypted.
                 </p>
               </div>
             </div>
@@ -355,12 +337,11 @@
                 </svg>
                 <span class="text-sm font-medium text-gray-800">AES-256-CBC</span>
               </div>
-              <div class="flex items-center justify-center space-x-2 bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <div class="flex items-center justify-center space-x-2 bg-gray-50 rounded-lg p-3">
+                <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <span class="text-sm font-medium text-gray-800">DES</span>
-                <span class="text-xs text-yellow-700">(⚠️ Insecure)</span>
               </div>
             </div>
             <p class="text-xs text-gray-500 mt-4">+ RSA-4096 for key encapsulation</p>
@@ -383,25 +364,25 @@
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 1
               </div>
-              <p class="text-sm text-gray-700">System generates secure random encryption keys</p>
+              <p class="text-sm text-gray-700">Extracts text content from your PDF</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 2
               </div>
-              <p class="text-sm text-gray-700">Randomly selects 2+ encryption algorithms for multi-layer security</p>
+              <p class="text-sm text-gray-700">Generates secure random encryption keys</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 3
               </div>
-              <p class="text-sm text-gray-700">Applies encryption layers sequentially</p>
+              <p class="text-sm text-gray-700">Applies 2 encryption algorithms to the text content</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 4
               </div>
-              <p class="text-sm text-gray-700">Creates encrypted file with metadata header</p>
+              <p class="text-sm text-gray-700">Creates new PDF with encrypted text content</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
@@ -470,14 +451,9 @@ const availableAlgorithms = ref([
   {
     name: 'DES',
     key_size: '56 bits',
-    description: 'Data Encryption Standard (INSECURE - Educational only)',
-    warning: true
+    description: 'Data Encryption Standard'
   }
 ])
-
-const hasSelectedDES = computed(() => {
-  return selectedAlgorithms.value.includes('DES')
-})
 
 const canEncrypt = computed(() => {
   if (!selectedFile.value) return false
@@ -578,8 +554,8 @@ const downloadEncryptedFile = () => {
   if (!encryptionResult.value) return
 
   try {
-    const blob = base64ToBlob(encryptionResult.value.encryptedFile, 'application/json')
-    downloadFile(blob, `encrypted_${encryptionResult.value.originalFilename}.encrypted`)
+    const blob = base64ToBlob(encryptionResult.value.encryptedFile, 'application/pdf')
+    downloadFile(blob, encryptionResult.value.originalFilename)
   } catch (err) {
     error.value = 'Failed to download encrypted file: ' + err.message
   }

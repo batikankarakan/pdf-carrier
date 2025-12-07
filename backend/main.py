@@ -213,21 +213,20 @@ async def encrypt_file(
                 detail=f"File too large. Maximum size is {max_size / (1024*1024)}MB"
             )
 
-        # Perform encryption
-        encrypted_file_bytes, key_file_bytes = encrypt_pdf(pdf_bytes, file.filename, selected_algorithms)
+        # Perform encryption (now returns encrypted PDF and key file)
+        encrypted_pdf_bytes, key_file_bytes = encrypt_pdf(pdf_bytes, file.filename, selected_algorithms)
 
-        # Parse the encrypted file to get metadata
-        encrypted_file_json = encrypted_file_bytes.decode('utf-8')
+        # Parse the key file to get metadata
         import json
-        encrypted_data = json.loads(encrypted_file_json)
+        key_data = json.loads(key_file_bytes.decode('utf-8'))
 
         # Prepare response
         response_data = {
             "success": True,
-            "algorithms": encrypted_data['header']['algorithms'],
-            "encrypted_file": base64.b64encode(encrypted_file_bytes).decode('utf-8'),
+            "algorithms": key_data['metadata']['algorithms'],
+            "encrypted_file": base64.b64encode(encrypted_pdf_bytes).decode('utf-8'),
             "key_file": base64.b64encode(key_file_bytes).decode('utf-8'),
-            "timestamp": encrypted_data['header']['timestamp'],
+            "timestamp": key_data['metadata']['timestamp'],
             "original_filename": file.filename,
             "encryption_info": get_encryption_info(len(pdf_bytes))
         }

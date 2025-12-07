@@ -28,27 +28,16 @@
         <div
           v-for="(algorithm, index) in algorithms"
           :key="index"
-          :class="[
-            'algorithm-badge',
-            algorithm === 'DES' ? 'bg-yellow-50 border-yellow-300' : ''
-          ]"
+          class="algorithm-badge"
         >
           <div class="flex items-center space-x-2">
             <svg
-              :class="algorithm === 'DES' ? 'h-4 w-4 text-yellow-600' : 'h-4 w-4 text-primary-600'"
+              class="h-4 w-4 text-primary-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
               <path
-                v-if="algorithm === 'DES'"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-              <path
-                v-else
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
@@ -56,31 +45,10 @@
               />
             </svg>
             <span class="text-sm font-medium text-gray-800">{{ algorithm }}</span>
-            <span v-if="algorithm === 'DES'" class="text-xs text-yellow-700 font-semibold">⚠️ INSECURE</span>
           </div>
-          <span
-            :class="[
-              'text-xs px-2 py-0.5 rounded text-white',
-              algorithm === 'DES' ? 'bg-yellow-600' : 'bg-security-high'
-            ]"
-          >
+          <span class="text-xs px-2 py-0.5 rounded text-white bg-security-high">
             Layer {{ index + 1 }}
           </span>
-        </div>
-      </div>
-
-      <!-- DES Warning -->
-      <div v-if="hasDES" class="mt-3 p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
-        <div class="flex items-start space-x-2">
-          <svg class="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <div>
-            <p class="text-xs font-semibold text-yellow-900">Security Warning</p>
-            <p class="text-xs text-yellow-800 mt-1">
-              DES uses a 56-bit key and is cryptographically broken. This file includes DES for educational purposes only. It is NOT secure for real-world use.
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -181,10 +149,6 @@ const barClass = computed(() => {
     excellent: 'bg-security-excellent'
   }
   return classes[props.securityLevel] || classes.excellent
-})
-
-const hasDES = computed(() => {
-  return props.algorithms && props.algorithms.some(algo => algo === 'DES')
 })
 </script>
 

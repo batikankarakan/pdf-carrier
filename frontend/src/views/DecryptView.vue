@@ -2,9 +2,9 @@
   <div class="decrypt-view">
     <!-- Page Header -->
     <div class="text-center mb-8 animate-fade-in">
-      <h2 class="text-4xl font-bold text-gray-900 mb-3">Decrypt Your PDF</h2>
+      <h2 class="text-4xl font-bold text-gray-900 mb-3">Decrypt PDF Content</h2>
       <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Upload your encrypted PDF file and the corresponding key file to decrypt and restore your original document.
+        Upload your PDF file (with encrypted content) and the key file to decrypt and restore the original text content.
       </p>
     </div>
 
@@ -22,9 +22,9 @@
 
           <FileUpload
             ref="encryptedFileUploadRef"
-            accept=".encrypted"
-            label="Drag & drop your encrypted PDF here"
-            acceptDescription="Encrypted files (.encrypted)"
+            accept=".pdf"
+            label="Drag & drop your PDF with encrypted content here"
+            acceptDescription="PDF files (.pdf)"
             :maxSize="20 * 1024 * 1024"
             @file-selected="handleEncryptedFileSelected"
             @file-cleared="handleEncryptedFileCleared"
@@ -239,19 +239,19 @@
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 1
               </div>
-              <p class="text-sm text-gray-700">Parse encrypted file metadata header</p>
+              <p class="text-sm text-gray-700">Extract encrypted text from PDF</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 2
               </div>
-              <p class="text-sm text-gray-700">Load private key from key file</p>
+              <p class="text-sm text-gray-700">Load encryption keys from key file</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 3
               </div>
-              <p class="text-sm text-gray-700">Verify file integrity (HMAC check)</p>
+              <p class="text-sm text-gray-700">Verify content integrity (HMAC check)</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
@@ -269,7 +269,7 @@
               <div class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                 6
               </div>
-              <p class="text-sm text-gray-700">Restore original PDF file</p>
+              <p class="text-sm text-gray-700">Create PDF with decrypted text content</p>
             </div>
           </div>
         </div>
@@ -339,13 +339,13 @@ const decryptionResult = ref(null)
 const error = ref(null)
 
 const decryptionSteps = ref([
-  { label: 'Parsing file metadata header', status: 'pending', time: 0 },
-  { label: 'Loading private key', status: 'pending', time: 0 },
-  { label: 'Verifying file integrity (HMAC)', status: 'pending', time: 0 },
+  { label: 'Extracting encrypted text from PDF', status: 'pending', time: 0 },
+  { label: 'Loading private key from key file', status: 'pending', time: 0 },
+  { label: 'Verifying content integrity (HMAC)', status: 'pending', time: 0 },
   { label: 'Decrypting symmetric keys with RSA', status: 'pending', time: 0 },
-  { label: 'Removing ChaCha20-Poly1305 layer', status: 'pending', time: 0 },
-  { label: 'Removing AES-256-GCM layer', status: 'pending', time: 0 },
-  { label: 'Restoring original PDF', status: 'pending', time: 0 },
+  { label: 'Removing encryption layer 2', status: 'pending', time: 0 },
+  { label: 'Removing encryption layer 1', status: 'pending', time: 0 },
+  { label: 'Creating PDF with decrypted content', status: 'pending', time: 0 },
 ])
 
 const decryptionProgress = computed(() => {
@@ -356,23 +356,8 @@ const decryptionProgress = computed(() => {
 const handleEncryptedFileSelected = async (file) => {
   encryptedFile.value = file
   error.value = null
-  fileMetadata.value = null
-
-  // Fetch actual metadata from the encrypted file
-  try {
-    const response = await getFileMetadata(file)
-    if (response.success) {
-      fileMetadata.value = {
-        originalFilename: response.metadata.original_filename,
-        algorithms: response.metadata.algorithms,
-        timestamp: response.metadata.timestamp,
-        version: response.metadata.version
-      }
-    }
-  } catch (err) {
-    console.error('Failed to load metadata:', err)
-    error.value = 'Failed to read file metadata: ' + err.message
-  }
+  // Note: Metadata is now stored in the key file, not the encrypted PDF
+  // So we don't fetch metadata from the PDF file anymore
 }
 
 const handleEncryptedFileCleared = () => {
