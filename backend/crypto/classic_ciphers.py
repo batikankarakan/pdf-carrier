@@ -36,26 +36,32 @@ def encrypt_des(data: bytes, key: bytes) -> bytes:
     """
     Verilen datayı DES (CBC modu) ile şifreler.
     Çıktı olarak [iv (8 byte)] + [ciphertext] döndürür.
+
+    NOT: DES, cryptography kütüphanesinden kaldırıldığı için
+    TripleDES ile tek anahtar tekrarı kullanılmaktadır.
     """
+    from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES
     backend = default_backend()
-    
+
     # Anahtarın tam olarak 8 byte olmasını sağla
     processed_key = pad_key_to_8_bytes(key)
-    
+
     # 8 byte (64-bit) IV (Initialization Vector) oluştur
     iv = os.urandom(8)
-    
-    # DES şifresini CBC moduyla kur
-    cipher = Cipher(algorithms.DES(processed_key), modes.CBC(iv), backend=backend)
+
+    # DES şifresini CBC moduyla kur (TripleDES ile tek anahtar tekrarı)
+    # Tek DES için anahtarı 3 kez tekrarlayıp TripleDES kullanıyoruz
+    triple_key = processed_key + processed_key + processed_key
+    cipher = Cipher(TripleDES(triple_key), modes.CBC(iv), backend=backend)
     encryptor = cipher.encryptor()
-    
+
     # PKCS7 standardına göre padding ekle (DES blok boyutu 64 bit / 8 byte)
-    padder = padding.PKCS7(algorithms.DES.block_size).padder()
+    padder = padding.PKCS7(64).padder()
     padded_data = padder.update(data) + padder.finalize()
-    
+
     # Veriyi şifrele
     ciphertext = encryptor.update(padded_data) + encryptor.finalize()
-    
+
     # IV'yi şifreli metnin başına ekle, böylece decrypt ederken kullanabiliriz
     return iv + ciphertext
 
@@ -63,30 +69,36 @@ def decrypt_des(token: bytes, key: bytes) -> bytes:
     """
     DES (CBC modu) ile şifrelenmiş token'ı çözer.
     Token'ın [iv (8 byte)] + [ciphertext] formatında olmasını bekler.
+
+    NOT: DES, cryptography kütüphanesinden kaldırıldığı için
+    TripleDES ile tek anahtar tekrarı kullanılmaktadır.
     """
+    from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES
     backend = default_backend()
-    
+
     # Anahtarın tam olarak 8 byte olmasını sağla
     processed_key = pad_key_to_8_bytes(key)
-    
+
     # IV ve şifreli metni ayır
     if len(token) < 8:
         raise ValueError("Bozuk veri: IV için yeterli uzunluk yok.")
-        
+
     iv = token[:8]
     ciphertext = token[8:]
-    
-    # DES şifresini CBC moduyla kur
-    cipher = Cipher(algorithms.DES(processed_key), modes.CBC(iv), backend=backend)
+
+    # DES şifresini CBC moduyla kur (TripleDES ile tek anahtar tekrarı)
+    # Tek DES için anahtarı 3 kez tekrarlayıp TripleDES kullanıyoruz
+    triple_key = processed_key + processed_key + processed_key
+    cipher = Cipher(TripleDES(triple_key), modes.CBC(iv), backend=backend)
     decryptor = cipher.decryptor()
-    
+
     # Veriyi deşifrele
     padded_data = decryptor.update(ciphertext) + decryptor.finalize()
-    
+
     # PKCS7 padding'ini kaldır
-    unpadder = padding.PKCS7(algorithms.DES.block_size).unpadder()
+    unpadder = padding.PKCS7(64).unpadder()
     data = unpadder.update(padded_data) + unpadder.finalize()
-    
+
     return data
 
 # =============================================================================

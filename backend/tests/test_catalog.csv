@@ -1,0 +1,219 @@
+Test File,Test Class,Test Name,Purpose,Method
+test_algorithms.py,TestAESGCMCipher,test_generate_key_length,Verify AES-256 key is exactly 32 bytes,Check len(key) == 32
+test_algorithms.py,TestAESGCMCipher,test_generate_iv_length,Verify GCM IV is exactly 12 bytes,Check len(iv) == 12
+test_algorithms.py,TestAESGCMCipher,test_encrypt_decrypt_roundtrip,Verify encrypt then decrypt returns original data,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestAESGCMCipher,test_ciphertext_differs_from_plaintext,Verify ciphertext is different from plaintext,assert ciphertext != plaintext
+test_algorithms.py,TestAESGCMCipher,test_different_keys_produce_different_ciphertext,Verify different keys produce different outputs,encrypt(key1) != encrypt(key2)
+test_algorithms.py,TestAESGCMCipher,test_wrong_key_fails_decryption,Verify decryption with wrong key raises exception,pytest.raises(Exception) on decrypt with wrong key
+test_algorithms.py,TestAESGCMCipher,test_tampered_ciphertext_fails,Verify tampered data is detected by GCM auth tag,Modify ciphertext byte and expect exception
+test_algorithms.py,TestAESGCMCipher,test_large_data_encryption,Verify encryption works with 1MB data,Encrypt/decrypt 1MB of random bytes
+test_algorithms.py,TestAESGCMCipher,test_binary_data_encryption,Verify binary data (all byte values) encrypts correctly,Encrypt bytes(range(256))
+test_algorithms.py,TestAESGCMCipher,test_key_uniqueness,Verify generated keys are unique,Generate 100 keys and check all different
+test_algorithms.py,TestAES128GCMCipher,test_generate_key_length,Verify AES-128 key is exactly 16 bytes,Check len(key) == 16
+test_algorithms.py,TestAES128GCMCipher,test_encrypt_decrypt_roundtrip,Verify encrypt then decrypt returns original data,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestAES128GCMCipher,test_wrong_key_fails,Verify decryption with wrong key raises exception,pytest.raises(Exception) on decrypt with wrong key
+test_algorithms.py,TestChaCha20Cipher,test_generate_key_length,Verify ChaCha20 key is exactly 32 bytes,Check len(key) == 32
+test_algorithms.py,TestChaCha20Cipher,test_generate_nonce_length,Verify ChaCha20 nonce is exactly 12 bytes,Check len(nonce) == 12
+test_algorithms.py,TestChaCha20Cipher,test_encrypt_decrypt_roundtrip,Verify encrypt then decrypt returns original data,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestChaCha20Cipher,test_ciphertext_differs_from_plaintext,Verify ciphertext is different from plaintext,assert ciphertext != plaintext
+test_algorithms.py,TestChaCha20Cipher,test_wrong_key_fails_decryption,Verify decryption with wrong key raises exception,pytest.raises(Exception) on decrypt with wrong key
+test_algorithms.py,TestChaCha20Cipher,test_tampered_ciphertext_fails,Verify tampered data is detected by Poly1305 auth tag,Modify ciphertext byte and expect exception
+test_algorithms.py,TestChaCha20Cipher,test_large_data_encryption,Verify encryption works with 1MB data,Encrypt/decrypt 1MB of random bytes
+test_algorithms.py,TestAESCBCCipher,test_generate_key_length,Verify AES-CBC key is exactly 32 bytes,Check len(key) == 32
+test_algorithms.py,TestAESCBCCipher,test_generate_iv_length,Verify CBC IV is exactly 16 bytes,Check len(iv) == 16
+test_algorithms.py,TestAESCBCCipher,test_encrypt_decrypt_roundtrip,Verify encrypt then decrypt returns original data,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestAESCBCCipher,test_ciphertext_differs_from_plaintext,Verify ciphertext is different from plaintext,assert ciphertext != plaintext
+test_algorithms.py,TestAESCBCCipher,test_wrong_key_produces_garbage,Verify wrong key produces garbage (CBC has no auth),Decrypt with wrong key produces different output
+test_algorithms.py,TestAESCBCCipher,test_pkcs7_padding_applied,Verify PKCS7 padding is correctly applied,Check ciphertext length is multiple of block size
+test_algorithms.py,TestAESCBCCipher,test_large_data_encryption,Verify encryption works with large data,Encrypt/decrypt large random bytes
+test_algorithms.py,TestDESCipher,test_generate_key_length,Verify DES key is exactly 8 bytes,Check len(key) == 8
+test_algorithms.py,TestDESCipher,test_generate_iv_length,Verify DES IV is exactly 8 bytes,Check len(iv) == 8
+test_algorithms.py,TestDESCipher,test_encrypt_decrypt_roundtrip,Verify encrypt then decrypt returns original data,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestDESCipher,test_ciphertext_differs_from_plaintext,Verify ciphertext is different from plaintext,assert ciphertext != plaintext
+test_algorithms.py,TestDESCipher,test_pkcs7_padding_applied,Verify PKCS7 padding is correctly applied,Check ciphertext length is multiple of 8
+test_algorithms.py,TestRSACipher,test_generate_keypair,Verify RSA keypair generation works,Check private and public key objects created
+test_algorithms.py,TestRSACipher,test_encrypt_decrypt_roundtrip,Verify RSA encrypt/decrypt returns original,encrypt(data) -> decrypt() == data
+test_algorithms.py,TestRSACipher,test_ciphertext_differs_from_plaintext,Verify RSA ciphertext differs from plaintext,assert ciphertext != plaintext
+test_algorithms.py,TestRSACipher,test_wrong_key_fails_decryption,Verify wrong private key fails decryption,pytest.raises(Exception) with wrong key
+test_algorithms.py,TestRSACipher,test_serialize_deserialize_private_key,Verify private key serialization roundtrip,serialize -> deserialize == original
+test_algorithms.py,TestRSACipher,test_serialize_deserialize_public_key,Verify public key serialization roundtrip,serialize -> deserialize == original
+test_algorithms.py,TestRSACipher,test_4096_bit_key,Verify 4096-bit RSA key generation,Generate and use 4096-bit key
+test_algorithms.py,TestHMACGenerator,test_generate_key_length,Verify HMAC key is 32 bytes,Check len(key) == 32
+test_algorithms.py,TestHMACGenerator,test_compute_hmac,Verify HMAC computation produces 32-byte output,Check len(hmac) == 32
+test_algorithms.py,TestHMACGenerator,test_verify_valid_hmac,Verify valid HMAC passes verification,verify(data, key, hmac) == True
+test_algorithms.py,TestHMACGenerator,test_verify_invalid_hmac,Verify invalid HMAC fails verification,verify(data, key, wrong_hmac) == False
+test_algorithms.py,TestHMACGenerator,test_verify_tampered_data,Verify tampered data fails HMAC verification,verify(modified_data, key, hmac) == False
+test_algorithms.py,TestHMACGenerator,test_different_keys_produce_different_hmacs,Verify different keys produce different HMACs,hmac(key1) != hmac(key2)
+test_algorithms.py,TestHMACGenerator,test_same_key_produces_same_hmac,Verify same key produces same HMAC,hmac(key) == hmac(key) for same data
+test_algorithms.py,TestCrossAlgorithmCompatibility,test_aes_gcm_then_chacha20,Verify data can be re-encrypted with different algo,AES-GCM -> decrypt -> ChaCha20 -> decrypt == original
+test_algorithms.py,TestCrossAlgorithmCompatibility,test_all_algorithms_roundtrip,Verify all algorithms work in sequence,Chain all algorithms and verify data integrity
+test_api.py,TestHealthEndpoint,test_health_check,Verify /health endpoint returns 200 OK,GET /health returns status: healthy
+test_api.py,TestAlgorithmsEndpoint,test_get_algorithms,Verify /algorithms returns algorithm list,GET /algorithms returns JSON array
+test_api.py,TestAlgorithmsEndpoint,test_algorithms_include_expected,Verify expected algorithms are in list,Check AES-256-GCM and ChaCha20 present
+test_api.py,TestEncryptEndpoint,test_encrypt_pdf,Verify /encrypt endpoint encrypts PDF,POST PDF file and get encrypted response
+test_api.py,TestEncryptEndpoint,test_encrypt_with_specific_algorithms,Verify encryption with specific algorithm works,POST with algorithm parameter
+test_api.py,TestEncryptEndpoint,test_encrypt_invalid_file_type,Verify non-PDF files are rejected,POST non-PDF and expect 400 error
+test_api.py,TestEncryptEndpoint,test_encrypt_empty_file,Verify empty files are rejected,POST empty file and expect 400 error
+test_api.py,TestDecryptEndpoint,test_decrypt_pdf,Verify /decrypt endpoint decrypts PDF,POST encrypted PDF + key file
+test_api.py,TestDecryptEndpoint,test_decrypt_with_wrong_key,Verify wrong key file fails decryption,POST with wrong key and expect 400 error
+test_api.py,TestDecryptEndpoint,test_decrypt_missing_files,Verify missing files return error,POST without required files and expect 400
+test_api.py,TestPageSelectionEndpoint,test_encrypt_page_selection,Verify page selection encryption works,POST with page numbers parameter
+test_api.py,TestPageSelectionEndpoint,test_encrypt_multiple_pages,Verify multiple pages can be encrypted,POST with multiple page numbers
+test_api.py,TestPageSelectionEndpoint,test_decrypt_page_selection,Verify page selection decryption works,POST encrypted page selection PDF
+test_api.py,TestEncryptDecryptRoundtrip,test_full_encryption_roundtrip,Verify full API encrypt/decrypt cycle,encrypt -> decrypt == original via API
+test_api.py,TestEncryptDecryptRoundtrip,test_page_selection_roundtrip,Verify page selection encrypt/decrypt cycle,encrypt pages -> decrypt == original pages
+test_api.py,TestErrorHandling,test_invalid_json_algorithms,Verify invalid JSON in algorithms param fails,POST with malformed JSON
+test_api.py,TestErrorHandling,test_unknown_algorithm,Verify unknown algorithm name fails,POST with non-existent algorithm
+test_api.py,TestErrorHandling,test_corrupted_encrypted_file,Verify corrupted encrypted file fails,POST corrupted ciphertext
+test_api.py,TestErrorHandling,test_corrupted_key_file,Verify corrupted key file fails,POST corrupted key JSON
+test_classic_ciphers.py,TestDESCipher,test_encrypt_decrypt_roundtrip,Verify classic DES encrypt/decrypt works,encrypt_des -> decrypt_des == original
+test_classic_ciphers.py,TestDESCipher,test_ciphertext_differs_from_plaintext,Verify DES ciphertext differs from plaintext,assert ciphertext != plaintext
+test_classic_ciphers.py,TestDESCipher,test_key_padding_short_key,Verify short keys are padded to 8 bytes,pad_key_to_8_bytes('abc') has len 8
+test_classic_ciphers.py,TestDESCipher,test_key_padding_long_key,Verify long keys are truncated to 8 bytes,pad_key_to_8_bytes(long_key)[:8]
+test_classic_ciphers.py,TestDESCipher,test_key_padding_exact_key,Verify 8-byte keys are unchanged,pad_key_to_8_bytes(8_bytes) == 8_bytes
+test_classic_ciphers.py,TestDESCipher,test_wrong_key_fails_decryption,Verify wrong key produces garbage/fails,decrypt with wrong key fails or garbage
+test_classic_ciphers.py,TestDESCipher,test_iv_is_unique,Verify each encryption uses unique IV,Multiple encrypts produce different IVs
+test_classic_ciphers.py,TestDESCipher,test_short_data_encryption,Verify short data encrypts correctly,Encrypt single byte
+test_classic_ciphers.py,TestDESCipher,test_empty_data_encryption,Verify empty data encrypts correctly,Encrypt empty bytes
+test_classic_ciphers.py,TestDESCipher,test_binary_data_encryption,Verify binary data encrypts correctly,Encrypt all byte values
+test_classic_ciphers.py,TestDESCipher,test_invalid_token_too_short,Verify too-short token raises error,decrypt(<8 bytes) raises ValueError
+test_classic_ciphers.py,TestPlayfairCipher,test_generate_matrix_basic,Verify Playfair matrix generation,Check 5x5 matrix with key chars first
+test_classic_ciphers.py,TestPlayfairCipher,test_generate_matrix_with_duplicates,Verify duplicate letters removed from key,Key 'HELLO' has no duplicate in matrix
+test_classic_ciphers.py,TestPlayfairCipher,test_generate_matrix_with_j,Verify J is replaced with I in matrix,Matrix contains I but not J
+test_classic_ciphers.py,TestPlayfairCipher,test_preprocess_text_basic,Verify text preprocessing works,Check digraph splitting
+test_classic_ciphers.py,TestPlayfairCipher,test_preprocess_text_removes_nonalpha,Verify non-alpha chars removed,Numbers and symbols stripped
+test_classic_ciphers.py,TestPlayfairCipher,test_preprocess_text_converts_j_to_i,Verify J converted to I,JELLY -> IELLY
+test_classic_ciphers.py,TestPlayfairCipher,test_encrypt_decrypt_roundtrip,Verify Playfair encrypt/decrypt works,encrypt -> decrypt approximates original
+test_classic_ciphers.py,TestPlayfairCipher,test_ciphertext_differs_from_plaintext,Verify ciphertext differs from plaintext,assert ciphertext != plaintext
+test_classic_ciphers.py,TestPlayfairCipher,test_same_key_produces_consistent_results,Verify deterministic encryption,Same key + plaintext = same ciphertext
+test_classic_ciphers.py,TestPlayfairCipher,test_different_keys_produce_different_results,Verify different keys produce different output,encrypt(key1) != encrypt(key2)
+test_classic_ciphers.py,TestPlayfairCipher,test_decrypt_invalid_length,Verify odd-length ciphertext raises error,decrypt(odd_length) raises ValueError
+test_classic_ciphers.py,TestPlayfairCipher,test_lowercase_handling,Verify lowercase is converted to uppercase,encrypt('hello') works
+test_classic_ciphers.py,TestPlayfairCipher,test_special_characters_removed,Verify special chars handled,encrypt('Hello!') works
+test_classic_ciphers.py,TestCipherInsecurityWarnings,test_des_key_space_is_small,Document DES 56-bit key weakness,Check key is only 8 bytes (56 effective bits)
+test_classic_ciphers.py,TestCipherInsecurityWarnings,test_playfair_preserves_patterns,Document Playfair pattern leakage,Show repeated digraphs produce patterns
+test_cryptography.py,TestCascadingEntropyMixer,test_initialization,Verify CEM initializes with params,Check rounds and pool_size set correctly
+test_cryptography.py,TestCascadingEntropyMixer,test_custom_initialization,Verify custom CEM params work,CEM(rounds=10, pool_size=128)
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_correct_length,Verify generated key has correct length,generate_key(32) has len 32
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_uniqueness,Verify generated keys are unique,100 keys all different
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_randomness,Verify key byte distribution is uniform,No byte value dominates (chi-square-like)
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_with_salt_deterministic,Verify same salt produces same key,generate_key(salt=X) == generate_key(salt=X)
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_different_salts,Verify different salts produce different keys,generate_key(salt=A) != generate_key(salt=B)
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_symmetric_key_aes256,Verify AES-256 key generation,generate_symmetric_key('AES-256') len == 32
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_symmetric_key_aes128,Verify AES-128 key generation,generate_symmetric_key('AES-128') len == 16
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_symmetric_key_chacha20,Verify ChaCha20 key generation,generate_symmetric_key('ChaCha20') len == 32
+test_cryptography.py,TestCascadingEntropyMixer,test_generate_key_pair_seed,Verify RSA seed generation,generate_key_pair_seed() len == 64
+test_cryptography.py,TestCascadingEntropyMixer,test_entropy_counter_increments,Verify entropy counter increases,Counter increases after each generation
+test_cryptography.py,TestCascadingEntropyMixer,test_thread_safety,Verify CEM is thread-safe,10 threads generating keys concurrently
+test_cryptography.py,TestConvenienceFunctions,test_generate_encryption_key_default,Verify default key generation,generate_encryption_key() len == 32
+test_cryptography.py,TestConvenienceFunctions,test_generate_encryption_key_aes128,Verify AES-128 convenience function,generate_encryption_key('AES-128') len == 16
+test_cryptography.py,TestConvenienceFunctions,test_generate_encryption_key_with_salt,Verify salted key generation,Salted generation is deterministic
+test_cryptography.py,TestConvenienceFunctions,test_generate_key_with_salt_function,Verify password-based key derivation,generate_key_with_salt(pwd, salt)
+test_cryptography.py,TestConvenienceFunctions,test_generate_key_with_salt_different_passwords,Verify different passwords produce different keys,key(pwd1) != key(pwd2)
+test_cryptography.py,TestNonLinearMixing,test_nonlinear_mix_changes_data,Verify mixing transforms data,_nonlinear_mix(data) != data
+test_cryptography.py,TestNonLinearMixing,test_nonlinear_mix_deterministic,Verify mixing is deterministic,_nonlinear_mix(data, r) == _nonlinear_mix(data, r)
+test_cryptography.py,TestNonLinearMixing,test_nonlinear_mix_different_rounds,Verify different rounds produce different output,_nonlinear_mix(data, 1) != _nonlinear_mix(data, 2)
+test_cryptography.py,TestNonLinearMixing,test_nonlinear_mix_empty_data,Verify empty data returns empty,_nonlinear_mix(b'') == b''
+test_cryptography.py,TestCascadeTransform,test_cascade_transform_reduces_data,Verify cascade reduces data size,len(_cascade_transform(data)) < len(data)
+test_cryptography.py,TestCascadeTransform,test_cascade_transform_deterministic,Verify cascade is deterministic,_cascade_transform(x) == _cascade_transform(x)
+test_cryptography.py,TestKeyExpansion,test_expand_to_length,Verify key expansion works,_expand_to_length(data, 64) len == 64
+test_cryptography.py,TestKeyExpansion,test_expand_to_shorter_length,Verify truncation works,_expand_to_length(64_bytes, 32) len == 32
+test_cryptography.py,TestKeyExpansion,test_deterministic_expand,Verify deterministic expansion,_deterministic_expand(x) == _deterministic_expand(x)
+test_cryptography.py,TestEdgeCases,test_generate_key_length_zero,Verify zero-length key works,generate_key(0) len == 0
+test_cryptography.py,TestEdgeCases,test_generate_very_long_key,Verify long key generation,generate_key(1024) len == 1024
+test_cryptography.py,TestEdgeCases,test_rapid_key_generation,Verify rapid generation produces unique keys,1000 rapid keys all unique
+test_decryption.py,TestDecryptPDF,test_decrypt_basic,Verify basic PDF decryption works,decrypt_pdf returns original PDF
+test_decryption.py,TestDecryptPDF,test_decrypt_returns_metadata,Verify decryption returns metadata,Check metadata dict in response
+test_decryption.py,TestDecryptPDF,test_decrypt_invalid_key_file_json,Verify invalid JSON key file fails,pytest.raises(ValueError) on bad JSON
+test_decryption.py,TestDecryptPDF,test_decrypt_missing_private_key,Verify missing private key field fails,pytest.raises on missing 'private_key'
+test_decryption.py,TestDecryptPDF,test_decrypt_tampered_hmac,Verify tampered HMAC detected,pytest.raises on modified HMAC
+test_decryption.py,TestDecryptPDF,test_decrypt_wrong_key_file,Verify wrong key file fails,pytest.raises when using different key
+test_decryption.py,TestDecryptPDF,test_decrypt_missing_metadata_field,Verify missing metadata field fails,pytest.raises on missing 'metadata'
+test_decryption.py,TestDecryptPDF,test_decrypt_all_algorithm_combinations,Verify all algorithm combos work,Test AES-GCM/ChaCha20/CBC combinations
+test_decryption.py,TestDecryptPDFPageSelection,test_decrypt_page_selection_basic,Verify page selection decryption works,Decrypt single page selection
+test_decryption.py,TestDecryptPDFPageSelection,test_decrypt_page_selection_multiple_pages,Verify multi-page decryption works,Decrypt pages [1,3,5]
+test_decryption.py,TestDecryptPDFPageSelection,test_decrypt_page_selection_returns_metadata,Verify page selection returns metadata,Check metadata in response
+test_decryption.py,TestDecryptPDFPageSelection,test_decrypt_page_selection_wrong_type,Verify wrong type key file fails,Use full encryption key for page selection
+test_decryption.py,TestDecryptPDFPageSelection,test_decrypt_page_selection_invalid_json,Verify invalid JSON fails,pytest.raises on bad JSON
+test_decryption.py,TestDecryptionVersionCompatibility,test_version_4_1_decryption,Verify v4.1 format decryption works,Decrypt v4.1 formatted key file
+test_decryption.py,TestDecryptionVersionCompatibility,test_version_7_1_decryption,Verify v7.1 format decryption works,Decrypt v7.1 formatted key file
+test_decryption.py,TestDecryptionEdgeCases,test_decrypt_large_pdf,Verify large PDF decryption works,Decrypt 100+ page PDF
+test_decryption.py,TestDecryptionEdgeCases,test_decrypt_single_page_pdf,Verify single page PDF works,Decrypt 1-page PDF
+test_decryption.py,TestDecryptionEdgeCases,test_decrypt_preserves_binary_content,Verify binary content preserved,Images/fonts intact after decrypt
+test_decryption.py,TestHMACVerification,test_hmac_passes_valid_file,Verify valid HMAC passes,No error on valid encrypted file
+test_decryption.py,TestHMACVerification,test_hmac_detects_tampered_encrypted_data,Verify tampered data detected,pytest.raises on modified encrypted_pdf_data
+test_decryption.py,TestHMACVerification,test_hmac_detects_missing_hmac_key,Verify missing HMAC key fails,pytest.raises on missing 'hmac_key'
+test_encryption.py,TestKeyManagement,test_generate_encryption_keys,Verify key generation function,Check all required keys generated
+test_encryption.py,TestKeyManagement,test_create_key_file,Verify key file JSON structure,Check required fields in key file
+test_encryption.py,TestKeyManagement,test_load_key_file,Verify key file loading,Load and parse key file JSON
+test_encryption.py,TestKeyManagement,test_key_encapsulation_roundtrip,Verify RSA key encapsulation,Wrap/unwrap symmetric key with RSA
+test_encryption.py,TestKeyManagement,test_invalid_key_file_format,Verify invalid format rejected,pytest.raises on malformed key file
+test_encryption.py,TestKeyManagement,test_missing_key_file_fields,Verify missing fields detected,pytest.raises on incomplete key file
+test_encryption.py,TestFullPDFEncryption,test_encrypt_pdf_basic,Verify basic PDF encryption,encrypt_pdf returns ciphertext + key
+test_encryption.py,TestFullPDFEncryption,test_encrypt_pdf_with_specific_algorithms,Verify algorithm selection works,encrypt_pdf(algorithms=['AES-256-GCM'])
+test_encryption.py,TestFullPDFEncryption,test_encrypt_decrypt_roundtrip,Verify full roundtrip works,encrypt -> decrypt == original
+test_encryption.py,TestFullPDFEncryption,test_encrypted_pdf_differs_from_original,Verify encryption changes data,encrypted != original
+test_encryption.py,TestFullPDFEncryption,test_wrong_key_file_fails,Verify wrong key fails decryption,pytest.raises with wrong key file
+test_encryption.py,TestFullPDFEncryption,test_all_algorithm_combinations,Verify all algorithm combos work,Test all symmetric/asymmetric combinations
+test_encryption.py,TestPageSelectionEncryption,test_encrypt_single_page,Verify single page encryption,encrypt_pdf_page_selection([1])
+test_encryption.py,TestPageSelectionEncryption,test_encrypt_multiple_pages,Verify multi-page encryption,encrypt_pdf_page_selection([1,3,5])
+test_encryption.py,TestPageSelectionEncryption,test_encrypt_decrypt_page_selection_roundtrip,Verify page selection roundtrip,encrypt pages -> decrypt == original pages
+test_encryption.py,TestPageSelectionEncryption,test_page_selection_with_specific_algorithms,Verify algorithm selection for pages,Page encryption with specific algos
+test_encryption.py,TestHMACVerification,test_hmac_verification_passes,Verify valid HMAC verification,No error on decrypt valid file
+test_encryption.py,TestHMACVerification,test_tampered_encrypted_pdf_fails,Verify tampered PDF detected,pytest.raises on modified encrypted data
+test_encryption.py,TestEdgeCases,test_single_page_pdf,Verify single page PDF encryption,Encrypt 1-page PDF
+test_encryption.py,TestEdgeCases,test_pdf_with_special_characters,Verify special chars in PDF work,Encrypt PDF with unicode content
+test_encryption.py,TestEdgeCases,test_large_pdf,Verify large PDF encryption,Encrypt 50+ page PDF
+test_encryption.py,TestVersionCompatibility,test_version_4_0_format,Verify v4.0 key file format,Check version field == '4.x'
+test_encryption.py,TestVersionCompatibility,test_page_selection_version_7_format,Verify v7.0 format for page selection,Check version field == '7.x'
+test_pdf_content.py,TestExtractTextFromPDF,test_extract_text_basic,Verify PDF text extraction,extract_text_from_pdf returns text
+test_pdf_content.py,TestExtractTextFromPDF,test_extract_text_returns_metadata,Verify extraction returns metadata,Check page_count and page_sizes
+test_pdf_content.py,TestExtractTextFromPDF,test_extract_text_page_sizes,Verify page sizes extracted,Check width/height in metadata
+test_pdf_content.py,TestExtractTextFromPDF,test_extract_text_single_page,Verify single page extraction,Extract from 1-page PDF
+test_pdf_content.py,TestGetPDFMetadata,test_get_metadata_basic,Verify metadata extraction,get_pdf_metadata returns dict
+test_pdf_content.py,TestGetPDFMetadata,test_get_metadata_page_sizes,Verify page sizes in metadata,Check page dimensions
+test_pdf_content.py,TestGetPDFMetadata,test_get_metadata_single_page,Verify single page metadata,Metadata for 1-page PDF
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_basic,Verify PDF creation from text,create_pdf_with_text returns valid PDF
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_with_metadata,Verify PDF creation with metadata,Create PDF with custom metadata
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_multiple_pages,Verify multi-page PDF creation,Create PDF with page breaks
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_long_lines,Verify long line handling,Create PDF with very long lines
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_empty_text,Verify empty text handling,Create PDF with empty string
+test_pdf_content.py,TestCreatePDFWithText,test_create_pdf_special_characters,Verify special char handling,Create PDF with unicode chars
+test_pdf_content.py,TestEncryptDecryptTextContent,test_encrypt_text_basic,Verify text content encryption,encrypt_text_content returns base64
+test_pdf_content.py,TestEncryptDecryptTextContent,test_decrypt_text_basic,Verify text content decryption,decrypt_text_content returns original
+test_pdf_content.py,TestEncryptDecryptTextContent,test_encrypt_decrypt_roundtrip,Verify text encryption roundtrip,encrypt -> decrypt == original
+test_pdf_content.py,TestEncryptDecryptTextContent,test_encrypt_adds_line_breaks,Verify base64 line breaks,Encrypted output has newlines for readability
+test_pdf_content.py,TestEncryptDecryptTextContent,test_decrypt_handles_line_breaks,Verify line break removal,Decrypt handles base64 with newlines
+test_pdf_content.py,TestEncryptDecryptTextContent,test_decrypt_invalid_base64,Verify invalid base64 fails,pytest.raises on bad base64
+test_pdf_content.py,TestEncryptDecryptTextContent,test_encrypt_unicode,Verify unicode text encryption,Encrypt text with emoji/unicode
+test_pdf_content.py,TestEncryptDecryptTextContent,test_encrypt_empty_string,Verify empty string handling,Encrypt/decrypt empty string
+test_pdf_content.py,TestPDFRoundtrip,test_extract_create_roundtrip,Verify PDF content roundtrip,extract -> create approximates original
+test_pdf_content.py,TestPDFRoundtrip,test_metadata_preserved_approximately,Verify metadata preservation,Page count preserved in roundtrip
+test_security.py,TestKeyUniqueness,test_aes_key_uniqueness,Verify 1000 AES keys are unique,Generate 1000 keys and check all different
+test_security.py,TestKeyUniqueness,test_aes_iv_uniqueness,Verify 1000 AES IVs are unique,Generate 1000 IVs and check all different
+test_security.py,TestKeyUniqueness,test_chacha_key_uniqueness,Verify 1000 ChaCha keys are unique,Generate 1000 keys and check all different
+test_security.py,TestKeyUniqueness,test_chacha_nonce_uniqueness,Verify 1000 ChaCha nonces are unique,Generate 1000 nonces and check all different
+test_security.py,TestKeyUniqueness,test_rsa_keypair_uniqueness,Verify 10 RSA keypairs are unique,Generate 10 keypairs and check all different
+test_security.py,TestKeyUniqueness,test_encryption_produces_unique_ciphertext,Verify same plaintext produces different ciphertexts,100 encryptions of same data all different
+test_security.py,TestInputValidation,test_encrypt_empty_plaintext,Verify empty data encryption works,encrypt(b'') succeeds
+test_security.py,TestInputValidation,test_encrypt_very_large_data,Verify 1MB data encryption works,encrypt(1MB) succeeds
+test_security.py,TestInputValidation,test_decrypt_with_short_ciphertext,Verify short ciphertext fails gracefully,pytest.raises on too-short ciphertext
+test_security.py,TestInputValidation,test_decrypt_with_wrong_iv_length,Verify wrong IV length fails,pytest.raises on wrong IV size
+test_security.py,TestInputValidation,test_rsa_max_plaintext_size,Verify RSA max size works,Encrypt ~446 bytes with RSA-4096
+test_security.py,TestInputValidation,test_rsa_oversized_plaintext,Verify RSA oversized plaintext fails,pytest.raises on >446 bytes
+test_security.py,TestTamperDetection,test_gcm_detects_ciphertext_modification,Verify GCM detects tampering,Flip bit in ciphertext and expect failure
+test_security.py,TestTamperDetection,test_gcm_detects_auth_tag_modification,Verify GCM detects auth tag change,Modify last 16 bytes and expect failure
+test_security.py,TestTamperDetection,test_chacha_detects_ciphertext_modification,Verify ChaCha20 detects tampering,Flip bit in ciphertext and expect failure
+test_security.py,TestTamperDetection,test_hmac_detects_data_modification,Verify HMAC detects data change,Modify data and verify HMAC fails
+test_security.py,TestTamperDetection,test_pdf_tamper_detection,Verify PDF tampering detected,Modify encrypted PDF data and expect failure
+test_security.py,TestConcurrentAccess,test_concurrent_key_generation,Verify concurrent key generation is safe,10 threads generating 100 keys each
+test_security.py,TestConcurrentAccess,test_concurrent_encryption,Verify concurrent encryption is safe,5 threads encrypting PDFs simultaneously
+test_security.py,TestConcurrentAccess,test_cem_thread_safety,Verify CEM is thread-safe,10 threads using same CEM instance
+test_security.py,TestErrorMessageSafety,test_wrong_key_error_generic,Verify error doesn't leak key info,Check error message has no hex key data
+test_security.py,TestErrorMessageSafety,test_hmac_failure_generic,Verify HMAC error doesn't leak values,Check error message has no HMAC values
+test_security.py,TestKeyEntropyQuality,test_key_byte_distribution,Verify key bytes are uniformly distributed,No byte value > 5% of total
+test_security.py,TestKeyEntropyQuality,test_cem_entropy_quality,Verify CEM produces uniform bytes,No byte value > 5% of total
+test_security.py,TestCBCSpecificVulnerabilities,test_cbc_iv_uniqueness_per_encryption,Verify CBC uses unique IV per encrypt,100 encryptions produce 100 unique IVs
+test_security.py,TestCBCSpecificVulnerabilities,test_cbc_padding_oracle_resistance,Verify CBC padding errors are generic,Corrupt padding and check exception type
+test_security.py,TestDESInsecurity,test_des_key_size_warning,Document DES 56-bit key weakness,Verify DES key is only 8 bytes
+test_security.py,TestDESInsecurity,test_des_still_works_for_education,Verify DES still functional for learning,DES encrypt/decrypt works despite insecurity

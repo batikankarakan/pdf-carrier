@@ -45,12 +45,14 @@ class AESGCMCipher:
     @staticmethod
     def generate_iv() -> bytes:
         """
-        Generate a 96-bit (12 bytes) IV using Cascading Entropy Mixer
+        Generate a 96-bit (12 bytes) IV using os.urandom for guaranteed uniqueness
 
         Returns:
             bytes: 12-byte IV
         """
-        return _key_generator.generate_key(12)
+        # Use os.urandom directly for IVs/nonces to guarantee uniqueness
+        # IVs must NEVER repeat for the same key in GCM mode
+        return os.urandom(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -68,7 +70,7 @@ class AESGCMCipher:
             Tuple of (ciphertext, iv)
         """
         aesgcm = AESGCM(key)
-        iv = _key_generator.generate_key(12)  # 96 bits - MUST be unique for each encryption
+        iv = os.urandom(12)  # 96 bits - MUST be unique for each encryption
         ciphertext = aesgcm.encrypt(iv, plaintext, None)
         return ciphertext, iv
 
@@ -112,12 +114,14 @@ class ChaCha20Cipher:
     @staticmethod
     def generate_nonce() -> bytes:
         """
-        Generate a 96-bit (12 bytes) nonce using Cascading Entropy Mixer
+        Generate a 96-bit (12 bytes) nonce using os.urandom for guaranteed uniqueness
 
         Returns:
             bytes: 12-byte nonce
         """
-        return _key_generator.generate_key(12)
+        # Use os.urandom directly for nonces to guarantee uniqueness
+        # Nonces must NEVER repeat for the same key
+        return os.urandom(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -135,7 +139,7 @@ class ChaCha20Cipher:
             Tuple of (ciphertext, nonce)
         """
         chacha = ChaCha20Poly1305(key)
-        nonce = _key_generator.generate_key(12)  # 96 bits - MUST be unique
+        nonce = os.urandom(12)  # 96 bits - MUST be unique
         ciphertext = chacha.encrypt(nonce, plaintext, None)
         return ciphertext, nonce
 
@@ -367,12 +371,13 @@ class AES128GCMCipher:
     @staticmethod
     def generate_iv() -> bytes:
         """
-        Generate a 96-bit (12 bytes) IV using Cascading Entropy Mixer
+        Generate a 96-bit (12 bytes) IV using os.urandom for guaranteed uniqueness
 
         Returns:
             bytes: 12-byte IV
         """
-        return _key_generator.generate_key(12)
+        # Use os.urandom directly for IVs to guarantee uniqueness
+        return os.urandom(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -387,7 +392,7 @@ class AES128GCMCipher:
             Tuple of (ciphertext, iv)
         """
         aesgcm = AESGCM(key)
-        iv = _key_generator.generate_key(12)  # 96 bits
+        iv = os.urandom(12)  # 96 bits - MUST be unique
         ciphertext = aesgcm.encrypt(iv, plaintext, None)
         return ciphertext, iv
 
@@ -425,12 +430,13 @@ class AESCBCCipher:
     @staticmethod
     def generate_iv() -> bytes:
         """
-        Generate a 128-bit (16 bytes) IV using Cascading Entropy Mixer
+        Generate a 128-bit (16 bytes) IV using os.urandom for guaranteed uniqueness
 
         Returns:
             bytes: 16-byte IV
         """
-        return _key_generator.generate_key(16)
+        # Use os.urandom directly for IVs to guarantee uniqueness
+        return os.urandom(16)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes, bytes]:
@@ -452,8 +458,8 @@ class AESCBCCipher:
         padder = sym_padding.PKCS7(128).padder()
         padded_data = padder.update(plaintext) + padder.finalize()
 
-        # Generate IV
-        iv = _key_generator.generate_key(16)  # 128 bits for CBC
+        # Generate IV using os.urandom for uniqueness
+        iv = os.urandom(16)  # 128 bits for CBC
 
         # Encrypt
         cipher = Cipher(
@@ -514,12 +520,13 @@ class DESCipher:
     @staticmethod
     def generate_iv() -> bytes:
         """
-        Generate an 8-byte IV for DES using Cascading Entropy Mixer
+        Generate an 8-byte IV for DES using os.urandom for guaranteed uniqueness
 
         Returns:
             bytes: 8-byte IV
         """
-        return _key_generator.generate_key(8)
+        # Use os.urandom directly for IVs to guarantee uniqueness
+        return os.urandom(8)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes, bytes]:
@@ -546,8 +553,8 @@ class DESCipher:
         padder = sym_padding.PKCS7(64).padder()
         padded_data = padder.update(plaintext) + padder.finalize()
 
-        # Generate IV (8 bytes for DES)
-        iv = _key_generator.generate_key(8)
+        # Generate IV using os.urandom for uniqueness (8 bytes for DES)
+        iv = os.urandom(8)
 
         # Encrypt using DES in CBC mode
         # Use TripleDES with single DES key (backward compatibility)
