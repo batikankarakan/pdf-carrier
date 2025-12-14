@@ -32,9 +32,145 @@
           />
         </div>
 
+        <!-- Encryption Mode Selection -->
+        <div v-if="selectedFile && !isEncrypting && !encryptionResult" class="card animate-fade-in">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 2: Choose Encryption Mode</h3>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <button
+              @click="encryptionMode = 'full'"
+              :class="[
+                'p-4 rounded-lg border-2 transition-all duration-200 text-left',
+                encryptionMode === 'full'
+                  ? 'border-primary-600 bg-primary-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+              ]"
+            >
+              <div class="flex items-center space-x-2 mb-2">
+                <svg class="h-6 w-6" :class="encryptionMode === 'full' ? 'text-primary-600' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="font-semibold" :class="encryptionMode === 'full' ? 'text-gray-900' : 'text-gray-600'">
+                  Full PDF
+                </span>
+              </div>
+              <p class="text-xs text-gray-600">
+                Encrypt entire PDF content
+              </p>
+            </button>
+
+            <button
+              @click="encryptionMode = 'page_selection'"
+              :class="[
+                'p-4 rounded-lg border-2 transition-all duration-200 text-left',
+                encryptionMode === 'page_selection'
+                  ? 'border-primary-600 bg-primary-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+              ]"
+            >
+              <div class="flex items-center space-x-2 mb-2">
+                <svg class="h-6 w-6" :class="encryptionMode === 'page_selection' ? 'text-primary-600' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="font-semibold" :class="encryptionMode === 'page_selection' ? 'text-gray-900' : 'text-gray-600'">
+                  Page Selection
+                </span>
+              </div>
+              <p class="text-xs text-gray-600">
+                Encrypt specific pages
+              </p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Page Selection -->
+        <div v-if="selectedFile && encryptionMode === 'page_selection' && !isEncrypting && !encryptionResult" class="card animate-fade-in">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 3: Select Pages to Encrypt</h3>
+          <p class="text-sm text-gray-600 mb-4">
+            Select specific pages to encrypt. Only the selected pages will be encrypted while other pages remain readable.
+          </p>
+
+          <!-- Page count info -->
+          <div v-if="totalPages > 0" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-800">
+              <span class="font-semibold">Total pages:</span> {{ totalPages }}
+            </p>
+          </div>
+
+          <!-- Page selection controls -->
+          <div class="space-y-4">
+            <!-- Quick selection buttons -->
+            <div class="flex flex-wrap gap-2">
+              <button
+                @click="selectAllPages"
+                class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Select All
+              </button>
+              <button
+                @click="deselectAllPages"
+                class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Deselect All
+              </button>
+              <button
+                @click="selectOddPages"
+                class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Odd Pages
+              </button>
+              <button
+                @click="selectEvenPages"
+                class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Even Pages
+              </button>
+            </div>
+
+            <!-- Page grid -->
+            <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="togglePage(page)"
+                :class="[
+                  'w-10 h-10 rounded-lg border-2 text-sm font-medium transition-all duration-200',
+                  selectedPages.includes(page)
+                    ? 'border-primary-600 bg-primary-600 text-white'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300'
+                ]"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <!-- Selected pages summary -->
+            <div v-if="selectedPages.length > 0" class="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p class="text-sm text-green-800">
+                <span class="font-semibold">{{ selectedPages.length }}</span> page(s) selected:
+                <span class="text-green-700">{{ formatSelectedPages }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- PDF Preview -->
+          <div class="mt-6">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">PDF Preview</h4>
+            <PdfViewer
+              ref="pdfViewerRef"
+              :file="selectedFile"
+              :selections="[]"
+              @page-dimensions="handlePageDimensions"
+              @page-count="handlePageCount"
+            />
+          </div>
+        </div>
+
         <!-- Algorithm Selection Card -->
         <div v-if="selectedFile && !isEncrypting && !encryptionResult" class="card animate-fade-in">
-          <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 2: Choose Encryption Method</h3>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">
+            Step {{ encryptionMode === 'page_selection' ? '4' : '3' }}: Choose Encryption Method
+          </h3>
 
           <!-- Selection Mode Toggle -->
           <div class="mb-6">
@@ -300,7 +436,15 @@
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span>{{ canEncrypt ? 'Encrypt File Now' : 'Select 2 Algorithms First' }}</span>
+              <span v-if="!canEncrypt && encryptionMode === 'page_selection' && selectedPages.length === 0">
+                Select Pages First
+              </span>
+              <span v-else-if="!canEncrypt && selectionMode === 'manual' && selectedAlgorithms.length !== 2">
+                Select 2 Algorithms First
+              </span>
+              <span v-else>
+                {{ encryptionMode === 'page_selection' ? `Encrypt ${selectedPages.length} Page(s)` : 'Encrypt File Now' }}
+              </span>
             </span>
           </button>
         </div>
@@ -416,13 +560,23 @@
 import { ref, computed } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import SecurityIndicator from '../components/SecurityIndicator.vue'
-import { encryptFile, downloadFile, base64ToBlob } from '../services/api'
+import PdfViewer from '../components/PdfViewer.vue'
+import { encryptFile, encryptFilePageSelection, downloadFile, base64ToBlob } from '../services/api'
 
 const fileUploadRef = ref(null)
+const pdfViewerRef = ref(null)
 const selectedFile = ref(null)
 const isEncrypting = ref(false)
 const encryptionResult = ref(null)
 const error = ref(null)
+
+// Encryption mode: 'full' or 'page_selection'
+const encryptionMode = ref('full')
+
+// Page selection state
+const selectedPages = ref([])
+const totalPages = ref(0)
+const pageDimensions = ref({})
 
 // Algorithm selection
 const selectionMode = ref('random') // 'random' or 'manual'
@@ -457,9 +611,52 @@ const availableAlgorithms = ref([
 
 const canEncrypt = computed(() => {
   if (!selectedFile.value) return false
-  if (selectionMode.value === 'random') return true
-  return selectedAlgorithms.value.length === 2
+  if (selectionMode.value === 'manual' && selectedAlgorithms.value.length !== 2) return false
+  // For page selection mode, require at least one page selected
+  if (encryptionMode.value === 'page_selection' && selectedPages.value.length === 0) return false
+  return true
 })
+
+// Page selection helpers
+const handlePageCount = (count) => {
+  totalPages.value = count
+}
+
+const togglePage = (page) => {
+  const index = selectedPages.value.indexOf(page)
+  if (index > -1) {
+    selectedPages.value.splice(index, 1)
+  } else {
+    selectedPages.value.push(page)
+  }
+  selectedPages.value.sort((a, b) => a - b)
+}
+
+const selectAllPages = () => {
+  selectedPages.value = Array.from({ length: totalPages.value }, (_, i) => i + 1)
+}
+
+const deselectAllPages = () => {
+  selectedPages.value = []
+}
+
+const selectOddPages = () => {
+  selectedPages.value = Array.from({ length: totalPages.value }, (_, i) => i + 1).filter(p => p % 2 === 1)
+}
+
+const selectEvenPages = () => {
+  selectedPages.value = Array.from({ length: totalPages.value }, (_, i) => i + 1).filter(p => p % 2 === 0)
+}
+
+const formatSelectedPages = computed(() => {
+  if (selectedPages.value.length === 0) return ''
+  if (selectedPages.value.length <= 10) return selectedPages.value.join(', ')
+  return selectedPages.value.slice(0, 10).join(', ') + '...'
+})
+
+const handlePageDimensions = (dims) => {
+  pageDimensions.value = dims
+}
 
 const encryptionSteps = ref([
   { label: 'Generating secure random keys', status: 'pending', time: 0 },
@@ -524,8 +721,19 @@ const startEncryption = async () => {
       await animateStep(i)
     }
 
-    // Make API call to encrypt the file
-    const response = await encryptFile(selectedFile.value, algorithmsToUse)
+    let response
+    if (encryptionMode.value === 'page_selection') {
+      // Page selection encryption
+      console.log('[ENCRYPT] Page selection mode - pages:', selectedPages.value)
+      response = await encryptFilePageSelection(
+        selectedFile.value,
+        selectedPages.value,
+        algorithmsToUse
+      )
+    } else {
+      // Full PDF encryption
+      response = await encryptFile(selectedFile.value, algorithmsToUse)
+    }
 
     // Continue animating remaining steps
     for (let i = 3; i < encryptionSteps.value.length; i++) {
@@ -539,6 +747,8 @@ const startEncryption = async () => {
       keyFile: response.key_file,
       timestamp: response.timestamp,
       originalFilename: response.original_filename,
+      areasEncrypted: response.areas_encrypted || 0,
+      encryptionMode: encryptionMode.value
     }
 
   } catch (err) {
@@ -579,6 +789,10 @@ const resetEncryption = () => {
   error.value = null
   selectionMode.value = 'random'
   selectedAlgorithms.value = []
+  encryptionMode.value = 'full'
+  selectedPages.value = []
+  totalPages.value = 0
+  pageDimensions.value = {}
   encryptionSteps.value.forEach(step => {
     step.status = 'pending'
     step.time = 0

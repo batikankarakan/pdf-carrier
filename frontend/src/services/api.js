@@ -75,6 +75,143 @@ export const decryptFile = async (encryptedFile, keyFile) => {
 }
 
 /**
+ * Encrypt specific areas of a PDF file (selective encryption)
+ * @param {File} pdfFile - The PDF file to encrypt
+ * @param {Array<Object>} areas - Array of area selections with PDF coordinates
+ * @param {Array<string>} algorithms - Optional array of algorithm names to use
+ * @returns {Promise<Object>} - Response containing encrypted file and key file
+ */
+export const encryptFileSelective = async (pdfFile, areas, algorithms = null) => {
+  const formData = new FormData()
+  formData.append('file', pdfFile)
+  formData.append('areas', JSON.stringify(areas))
+
+  if (algorithms && algorithms.length > 0) {
+    formData.append('algorithms', JSON.stringify(algorithms))
+  }
+
+  const response = await apiClient.post('/encrypt/selective', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
+ * Decrypt a selectively encrypted PDF file
+ * @param {File} encryptedFile - The encrypted PDF file
+ * @param {File} keyFile - The key file for decryption
+ * @returns {Promise<Object>} - Response containing decrypted file data
+ */
+export const decryptFileSelective = async (encryptedFile, keyFile) => {
+  const formData = new FormData()
+  formData.append('encrypted_file', encryptedFile)
+  formData.append('key_file', keyFile)
+
+  const response = await apiClient.post('/decrypt/selective', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
+ * Encrypt specific text patterns/keywords in a PDF file
+ * @param {File} pdfFile - The PDF file to encrypt
+ * @param {Array<string>} searchTerms - Array of terms to search for and encrypt
+ * @param {boolean} caseSensitive - Whether to match case exactly
+ * @param {Array<string>} algorithms - Optional array of algorithm names to use
+ * @returns {Promise<Object>} - Response containing encrypted file and key file
+ */
+export const encryptFileTextSearch = async (pdfFile, searchTerms, caseSensitive = false, algorithms = null) => {
+  const formData = new FormData()
+  formData.append('file', pdfFile)
+  formData.append('search_terms', JSON.stringify(searchTerms))
+  formData.append('case_sensitive', caseSensitive.toString())
+
+  if (algorithms && algorithms.length > 0) {
+    formData.append('algorithms', JSON.stringify(algorithms))
+  }
+
+  const response = await apiClient.post('/encrypt/text-search', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
+ * Decrypt a text-search encrypted PDF file
+ * @param {File} encryptedFile - The encrypted PDF file
+ * @param {File} keyFile - The key file for decryption
+ * @returns {Promise<Object>} - Response containing decrypted file data
+ */
+export const decryptFileTextSearch = async (encryptedFile, keyFile) => {
+  const formData = new FormData()
+  formData.append('encrypted_file', encryptedFile)
+  formData.append('key_file', keyFile)
+
+  const response = await apiClient.post('/decrypt/text-search', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
+ * Encrypt specific pages of a PDF file
+ * @param {File} pdfFile - The PDF file to encrypt
+ * @param {Array<number>} pages - Array of page numbers to encrypt (1-indexed)
+ * @param {Array<string>} algorithms - Optional array of algorithm names to use
+ * @returns {Promise<Object>} - Response containing encrypted file and key file
+ */
+export const encryptFilePageSelection = async (pdfFile, pages, algorithms = null) => {
+  const formData = new FormData()
+  formData.append('file', pdfFile)
+  formData.append('pages', JSON.stringify(pages))
+
+  if (algorithms && algorithms.length > 0) {
+    formData.append('algorithms', JSON.stringify(algorithms))
+  }
+
+  const response = await apiClient.post('/encrypt/page-selection', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
+ * Decrypt a page-selection encrypted PDF file
+ * @param {File} encryptedFile - The encrypted PDF file
+ * @param {File} keyFile - The key file for decryption
+ * @returns {Promise<Object>} - Response containing decrypted file data
+ */
+export const decryptFilePageSelection = async (encryptedFile, keyFile) => {
+  const formData = new FormData()
+  formData.append('encrypted_file', encryptedFile)
+  formData.append('key_file', keyFile)
+
+  const response = await apiClient.post('/decrypt/page-selection', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+
+  return response.data
+}
+
+/**
  * Get list of available encryption algorithms
  * @returns {Promise<Array>} - List of available algorithms
  */
@@ -146,7 +283,13 @@ export const base64ToBlob = (base64, contentType = 'application/octet-stream') =
 
 export default {
   encryptFile,
+  encryptFileSelective,
+  encryptFileTextSearch,
+  encryptFilePageSelection,
   decryptFile,
+  decryptFileSelective,
+  decryptFileTextSearch,
+  decryptFilePageSelection,
   getAlgorithms,
   getFileMetadata,
   healthCheck,

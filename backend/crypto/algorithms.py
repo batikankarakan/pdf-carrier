@@ -22,6 +22,12 @@ import os
 import secrets
 from typing import Tuple, Dict
 
+# Import our custom key generation algorithm
+from .cryptography import CascadingEntropyMixer
+
+# Global key generator instance
+_key_generator = CascadingEntropyMixer(rounds=7, pool_size=64)
+
 
 class AESGCMCipher:
     """AES-256-GCM encryption/decryption"""
@@ -29,12 +35,22 @@ class AESGCMCipher:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate a 256-bit (32 bytes) AES key using cryptographically secure random
+        Generate a 256-bit (32 bytes) AES key using Cascading Entropy Mixer
 
         Returns:
             bytes: 32-byte AES key
         """
-        return secrets.token_bytes(32)  # 256 bits
+        return _key_generator.generate_key(32)  # 256 bits
+
+    @staticmethod
+    def generate_iv() -> bytes:
+        """
+        Generate a 96-bit (12 bytes) IV using Cascading Entropy Mixer
+
+        Returns:
+            bytes: 12-byte IV
+        """
+        return _key_generator.generate_key(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -52,7 +68,7 @@ class AESGCMCipher:
             Tuple of (ciphertext, iv)
         """
         aesgcm = AESGCM(key)
-        iv = os.urandom(12)  # 96 bits - MUST be unique for each encryption
+        iv = _key_generator.generate_key(12)  # 96 bits - MUST be unique for each encryption
         ciphertext = aesgcm.encrypt(iv, plaintext, None)
         return ciphertext, iv
 
@@ -86,12 +102,22 @@ class ChaCha20Cipher:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate a 256-bit (32 bytes) ChaCha20 key
+        Generate a 256-bit (32 bytes) ChaCha20 key using Cascading Entropy Mixer
 
         Returns:
             bytes: 32-byte ChaCha20 key
         """
-        return secrets.token_bytes(32)
+        return _key_generator.generate_key(32)
+
+    @staticmethod
+    def generate_nonce() -> bytes:
+        """
+        Generate a 96-bit (12 bytes) nonce using Cascading Entropy Mixer
+
+        Returns:
+            bytes: 12-byte nonce
+        """
+        return _key_generator.generate_key(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -109,7 +135,7 @@ class ChaCha20Cipher:
             Tuple of (ciphertext, nonce)
         """
         chacha = ChaCha20Poly1305(key)
-        nonce = os.urandom(12)  # 96 bits - MUST be unique
+        nonce = _key_generator.generate_key(12)  # 96 bits - MUST be unique
         ciphertext = chacha.encrypt(nonce, plaintext, None)
         return ciphertext, nonce
 
@@ -276,12 +302,12 @@ class HMACGenerator:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate a key for HMAC
+        Generate a key for HMAC using Cascading Entropy Mixer
 
         Returns:
             bytes: 32-byte HMAC key
         """
-        return secrets.token_bytes(32)
+        return _key_generator.generate_key(32)
 
     @staticmethod
     def compute(data: bytes, key: bytes) -> bytes:
@@ -331,12 +357,22 @@ class AES128GCMCipher:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate a 128-bit (16 bytes) AES key
+        Generate a 128-bit (16 bytes) AES key using Cascading Entropy Mixer
 
         Returns:
             bytes: 16-byte AES key
         """
-        return secrets.token_bytes(16)  # 128 bits
+        return _key_generator.generate_key(16)  # 128 bits
+
+    @staticmethod
+    def generate_iv() -> bytes:
+        """
+        Generate a 96-bit (12 bytes) IV using Cascading Entropy Mixer
+
+        Returns:
+            bytes: 12-byte IV
+        """
+        return _key_generator.generate_key(12)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes]:
@@ -351,7 +387,7 @@ class AES128GCMCipher:
             Tuple of (ciphertext, iv)
         """
         aesgcm = AESGCM(key)
-        iv = os.urandom(12)  # 96 bits
+        iv = _key_generator.generate_key(12)  # 96 bits
         ciphertext = aesgcm.encrypt(iv, plaintext, None)
         return ciphertext, iv
 
@@ -379,12 +415,22 @@ class AESCBCCipher:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate a 256-bit (32 bytes) AES key
+        Generate a 256-bit (32 bytes) AES key using Cascading Entropy Mixer
 
         Returns:
             bytes: 32-byte AES key
         """
-        return secrets.token_bytes(32)
+        return _key_generator.generate_key(32)
+
+    @staticmethod
+    def generate_iv() -> bytes:
+        """
+        Generate a 128-bit (16 bytes) IV using Cascading Entropy Mixer
+
+        Returns:
+            bytes: 16-byte IV
+        """
+        return _key_generator.generate_key(16)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes, bytes]:
@@ -407,7 +453,7 @@ class AESCBCCipher:
         padded_data = padder.update(plaintext) + padder.finalize()
 
         # Generate IV
-        iv = os.urandom(16)  # 128 bits for CBC
+        iv = _key_generator.generate_key(16)  # 128 bits for CBC
 
         # Encrypt
         cipher = Cipher(
@@ -456,14 +502,24 @@ class DESCipher:
     @staticmethod
     def generate_key() -> bytes:
         """
-        Generate an 8-byte DES key (56-bit effective)
+        Generate an 8-byte DES key (56-bit effective) using Cascading Entropy Mixer
 
         WARNING: DES is cryptographically broken. Use for academic purposes only.
 
         Returns:
             bytes: 8-byte DES key
         """
-        return secrets.token_bytes(8)  # DES uses 8-byte keys (56-bit effective)
+        return _key_generator.generate_key(8)  # DES uses 8-byte keys (56-bit effective)
+
+    @staticmethod
+    def generate_iv() -> bytes:
+        """
+        Generate an 8-byte IV for DES using Cascading Entropy Mixer
+
+        Returns:
+            bytes: 8-byte IV
+        """
+        return _key_generator.generate_key(8)
 
     @staticmethod
     def encrypt(plaintext: bytes, key: bytes) -> Tuple[bytes, bytes, bytes]:
@@ -491,7 +547,7 @@ class DESCipher:
         padded_data = padder.update(plaintext) + padder.finalize()
 
         # Generate IV (8 bytes for DES)
-        iv = os.urandom(8)
+        iv = _key_generator.generate_key(8)
 
         # Encrypt using DES in CBC mode
         # Use TripleDES with single DES key (backward compatibility)

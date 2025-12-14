@@ -327,7 +327,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
-import { decryptFile, getFileMetadata, downloadFile, base64ToBlob } from '../services/api'
+import { decryptFile, decryptFileSelective, decryptFileTextSearch, decryptFilePageSelection, getFileMetadata, downloadFile, base64ToBlob } from '../services/api'
 
 const encryptedFileUploadRef = ref(null)
 const keyFileUploadRef = ref(null)
@@ -398,8 +398,26 @@ const startDecryption = async () => {
       await animateStep(i)
     }
 
-    // Make API call to decrypt the file
-    const response = await decryptFile(encryptedFile.value, keyFile.value)
+    // Read key file to detect encryption type
+    const keyFileText = await keyFile.value.text()
+    const keyData = JSON.parse(keyFileText)
+    const encryptionType = keyData?.metadata?.encryption_type
+
+    // Make API call to decrypt the file using the appropriate method
+    let response
+    if (encryptionType === 'text_search') {
+      // Use text search decryption for keyword-encrypted PDFs
+      response = await decryptFileTextSearch(encryptedFile.value, keyFile.value)
+    } else if (encryptionType === 'page_selection') {
+      // Use page selection decryption for page-encrypted PDFs
+      response = await decryptFilePageSelection(encryptedFile.value, keyFile.value)
+    } else if (encryptionType === 'selective') {
+      // Use selective decryption for area-encrypted PDFs
+      response = await decryptFileSelective(encryptedFile.value, keyFile.value)
+    } else {
+      // Use standard decryption for full-file encryption
+      response = await decryptFile(encryptedFile.value, keyFile.value)
+    }
 
     // Continue animating remaining steps
     for (let i = 3; i < decryptionSteps.value.length; i++) {
